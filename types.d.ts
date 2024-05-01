@@ -12,12 +12,6 @@ declare global {
     }
   }
 
-  interface CloudflareEnv {
-    MAPS_API_KEY: string;
-    UPSTASH_REDIS_REST_URL: string;
-    UPSTASH_REDIS_REST_TOKEN: string;
-  }
-
   type Point = [number, number];
 
   type Segment = {
