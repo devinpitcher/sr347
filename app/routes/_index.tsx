@@ -16,11 +16,7 @@ export default function Index() {
       <h1>Welcome to Remix (with Vite and Cloudflare)</h1>
       <ul>
         <li>
-          <a
-            target="_blank"
-            href="https://developers.cloudflare.com/pages/framework-guides/deploy-a-remix-site/"
-            rel="noreferrer"
-          >
+          <a target="_blank" href="https://developers.cloudflare.com/pages/framework-guides/deploy-a-remix-site/" rel="noreferrer">
             Cloudflare Pages Docs - Remix guide
           </a>
         </li>
