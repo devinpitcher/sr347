@@ -135,6 +135,8 @@ export default function Home() {
             </radialGradient>
           </defs>
         </svg>
+
+        <div className="mb-2 text-center text-xs text-gray-200 opacity-50 dark:text-gray-900">v20240430CF</div>
       </footer>
     </section>
   );
