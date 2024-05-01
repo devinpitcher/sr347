@@ -9,7 +9,9 @@ import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 dayjs.extend(isSameOrAfter);
 
 export default function TrafficView() {
-  const { data, mutate } = useSWR<TrafficResponse>(`/api/traffic/347`, swrFetcher);
+  const { data, mutate } = useSWR<TrafficResponse>(`/api/traffic/347`, {
+    fetcher: swrFetcher,
+  });
 
   useEffect(() => {
     if (data?.lastUpdated) {
