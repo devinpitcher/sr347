@@ -1,4 +1,5 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react";
+import "./styles.pcss";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -9,7 +10,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="min-h-screen dark:bg-slate-900 dark:text-white">
         {children}
         <ScrollRestoration />
         <Scripts />
