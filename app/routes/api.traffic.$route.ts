@@ -1,9 +1,11 @@
 import { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { ROUTES } from "~/constants/routes";
-import { Redis } from "@upstash/redis/cloudflare";
 import { type DistanceMatrixResponseData } from "@googlemaps/google-maps-services-js";
 
 export const loader = async ({ context, params }: LoaderFunctionArgs) => {
+  const {
+    env: { KV },
+  } = context.cloudflare;
   const matchedRoute = ROUTES.find(({ key }) => key.toLowerCase() === params.route!.toLowerCase());
 
   if (!matchedRoute) {
@@ -13,22 +15,19 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
     });
   }
 
-  const redis = new Redis({
-    url: context.cloudflare.env.UPSTASH_REDIS_REST_URL,
-    token: context.cloudflare.env.UPSTASH_REDIS_REST_TOKEN,
-  });
-
   const key = `route-${matchedRoute.key}`;
 
-  const value = await redis.get(key);
+  const value = await KV.get(key);
 
   if (value !== null) {
-    return Response.json(value);
+    return Response.json(JSON.parse(value));
   }
 
   const trafficResponse = await computeTraffic(matchedRoute, context.cloudflare.env.MAPS_API_KEY);
 
-  await redis.setex(key, 60 * 5, trafficResponse);
+  await KV.put(key, JSON.stringify(trafficResponse), {
+    expirationTtl: 60 * 5,
+  });
 
   return Response.json(trafficResponse);
 };
