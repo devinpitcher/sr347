@@ -1,11 +1,20 @@
-import type { MetaFunction } from "@remix-run/cloudflare";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
 import { CAMERAS } from "~/constants/cameras";
 import Camera from "~/components/Camera";
 import TrafficView from "~/components/TrafficView";
-import { HeartIcon } from "@heroicons/react/20/solid";
-import { Fragment } from "react";
+import { HeartIcon, ExclamationTriangleIcon, NoSymbolIcon } from "@heroicons/react/20/solid";
+import { Fragment, ReactNode } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import SR347Logo from "~/assets/sr347.svg?react";
+import { json, useLoaderData } from "@remix-run/react";
+import { getAlerts } from "~/alerts.server";
+import AccidentIcon from "~/assets/accident.svg?react";
+import RoadIcon from "~/assets/road.svg?react";
+import ConeIcon from "~/assets/cone.svg?react";
+import classNames from "classnames";
+import lodash from "lodash";
+
+const { startCase } = lodash;
 
 export const meta: MetaFunction = () => {
   return [
@@ -17,7 +26,31 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export async function loader({ context }: LoaderFunctionArgs) {
+  const {
+    env: { KV, AZ511_API_KEY },
+  } = context.cloudflare;
+
+  const key = `traffic-alerts`;
+
+  const value = await KV.get(key);
+
+  if (value !== null) {
+    return json(JSON.parse(value) as Alert[]);
+  }
+
+  const alerts = await getAlerts(AZ511_API_KEY);
+
+  await KV.put(key, JSON.stringify(alerts), {
+    expirationTtl: 60 * 5,
+  });
+
+  return json(alerts);
+}
+
 export default function Home() {
+  const data = useLoaderData<typeof loader>();
+
   return (
     <section>
       <nav className="mx-auto flex flex-row items-center justify-center bg-slate-200 p-4 dark:bg-slate-700">
@@ -42,31 +75,110 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="live-cameras" className="w-full lg:order-1">
-          <div className="border-b border-gray-200 pb-5 dark:border-slate-700">
+        <section className="w-full lg:order-1">
+          <section id="alerts" className="mb-6">
             <h2 className="flex items-center text-xl font-semibold leading-6 text-slate-900 dark:text-slate-100">
-              <span className="mr-1 animate-pulse rounded bg-red-700 px-2 py-0.5 text-sm text-white">Live</span>&nbsp;<span>Cameras</span>
+              <span>Traffic Alerts</span>&nbsp;<span className="ml-1 rounded bg-red-700 px-2 py-0.5 text-sm text-white">Beta</span>
             </h2>
-            <p className="mt-1 text-xs text-slate-500">Cameras update every 15 seconds</p>
-          </div>
 
-          <div className="grid grid-cols-1 gap-y-4 py-4 lg:grid-cols-2 lg:gap-x-4">
-            {CAMERAS.map((camera) => (
-              <Camera key={camera.id} {...camera} />
-            ))}
-          </div>
+            <p className="mb-4 mt-1 text-xs text-slate-500">Alerts are updated every 5 minutes</p>
 
-          <div className="border-t border-gray-200 pt-3 dark:border-slate-700">
-            <p className="text-center text-sm text-slate-500">
-              Live traffic cameras are provided by{" "}
-              <a href="https://az511.com" target="_blank" className="underline" rel="noreferrer">
-                ADOT
-              </a>
-              .
-              <br />
-              We cannot control or guarantee the positioning of the views or availability of these cameras.
-            </p>
-          </div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {data.length === 0 && (
+                <div className="rounded-md bg-green-100 p-4 text-green-800 ring-1 ring-inset ring-green-200 dark:bg-green-900 dark:text-green-200 dark:ring-green-800">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <RoadIcon className="size-6" aria-hidden="true" />
+                    </div>
+
+                    <div className="ml-3">
+                      <p className="text-sm">
+                        <strong className={"mb-1 inline-block text-base"}>All clear!</strong>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {data.map((alert) => {
+                let icon: ReactNode;
+                let severity: string;
+
+                const [org, id] = alert.ID.split("--");
+
+                switch (alert.Severity) {
+                  case "major":
+                    severity = "ring-1 ring-inset ring-red-300 dark:ring-red-800 bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200";
+                    break;
+                  case "minor":
+                  default:
+                    severity = "ring-1 ring-inset ring-slate-200 dark:ring-slate-700 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-white";
+                }
+
+                switch (alert.EventType) {
+                  case "accidentsAndIncidents":
+                    icon = <AccidentIcon className="size-6" aria-hidden="true" />;
+                    break;
+                  case "closures":
+                    icon = <NoSymbolIcon className="size-5" aria-hidden="true" />;
+                    break;
+                  case "roadwork":
+                    icon = <ConeIcon className="mt-0.5 size-5" aria-hidden="true" />;
+                    break;
+                  default:
+                    icon = <ExclamationTriangleIcon className="size-5" aria-hidden="true" />;
+                }
+
+                return (
+                  <div className={classNames("rounded-md p-4", severity)} key={alert.ID}>
+                    <div className="flex">
+                      <div className="flex-shrink-0">{icon}</div>
+
+                      <div className="ml-3">
+                        <p className="text-sm">
+                          <strong className={"mb-1 inline-block text-base"}>{startCase(alert.EventType)}</strong>
+                          <br />
+                          {alert.Description}
+                        </p>
+                        <p className={"mt-2 text-sm font-bold"}>
+                          <a href={`https://az511.com/EventDetails/${org}/${id}?lang=en`} target={"_blank"} rel="noreferrer" className={"underline"}>
+                            More info
+                          </a>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          <section id="live-cameras">
+            <div className="border-b border-gray-200 pb-5 dark:border-slate-700">
+              <h2 className="flex items-center text-xl font-semibold leading-6 text-slate-900 dark:text-slate-100">
+                <span className="mr-1 animate-pulse rounded bg-red-700 px-2 py-0.5 text-sm text-white">Live</span>&nbsp;<span>Cameras</span>
+              </h2>
+              <p className="mt-1 text-xs text-slate-500">Cameras update every 15 seconds</p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-y-4 py-4 lg:grid-cols-2 lg:gap-x-4">
+              {CAMERAS.map((camera) => (
+                <Camera key={camera.id} {...camera} />
+              ))}
+            </div>
+
+            <div className="border-t border-gray-200 pt-3 dark:border-slate-700">
+              <p className="text-center text-sm text-slate-500">
+                Live traffic cameras and alerts are provided by{" "}
+                <a href="https://az511.com" target="_blank" className="underline" rel="noreferrer">
+                  ADOT
+                </a>
+                .
+                <br />
+                We cannot control or guarantee the positioning of the views or availability of these cameras.
+              </p>
+            </div>
+          </section>
         </section>
       </main>
 
