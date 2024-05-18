@@ -36,20 +36,30 @@ export async function loader({ context }: LoaderFunctionArgs) {
   const value = await KV.get(key);
 
   if (value !== null) {
-    return json(JSON.parse(value) as Alert[]);
+    return json({
+      alerts: JSON.parse(value) as Alert[],
+    });
   }
 
-  const alerts = await getAlerts(AZ511_API_KEY);
+  try {
+    const alerts = await getAlerts(AZ511_API_KEY);
 
-  await KV.put(key, JSON.stringify(alerts), {
-    expirationTtl: 60 * 5,
-  });
+    await KV.put(key, JSON.stringify(alerts), {
+      expirationTtl: 60 * 5,
+    });
 
-  return json(alerts);
+    return json({
+      alerts,
+    });
+  } catch (e) {
+    return json({
+      alerts: null,
+    });
+  }
 }
 
 export default function Home() {
-  const data = useLoaderData<typeof loader>();
+  const { alerts } = useLoaderData<typeof loader>();
 
   return (
     <section>
@@ -84,7 +94,7 @@ export default function Home() {
             <p className="mb-4 mt-1 text-xs text-slate-500">Alerts are updated every 5 minutes</p>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              {data.length === 0 && (
+              {alerts && alerts.length === 0 && (
                 <div className="rounded-md bg-green-100 p-4 text-green-800 ring-1 ring-inset ring-green-200 dark:bg-green-900 dark:text-green-200 dark:ring-green-800">
                   <div className="flex">
                     <div className="flex-shrink-0">
@@ -100,56 +110,71 @@ export default function Home() {
                 </div>
               )}
 
-              {data.map((alert) => {
-                let icon: ReactNode;
-                let severity: string;
+              {alerts === null && (
+                <div className="rounded-md bg-slate-100 p-4 text-slate-700 ring-1 ring-inset ring-slate-200 dark:bg-slate-800 dark:text-white dark:ring-slate-700">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <ExclamationTriangleIcon className="mt-1 size-5" aria-hidden="true" />
+                    </div>
 
-                const [org, id] = alert.ID.split("--");
-
-                switch (alert.Severity) {
-                  case "major":
-                    severity = "ring-1 ring-inset ring-red-300 dark:ring-red-800 bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200";
-                    break;
-                  case "minor":
-                  default:
-                    severity = "ring-1 ring-inset ring-slate-200 dark:ring-slate-700 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-white";
-                }
-
-                switch (alert.EventType) {
-                  case "accidentsAndIncidents":
-                    icon = <AccidentIcon className="size-6" aria-hidden="true" />;
-                    break;
-                  case "closures":
-                    icon = <NoSymbolIcon className="size-5" aria-hidden="true" />;
-                    break;
-                  case "roadwork":
-                    icon = <ConeIcon className="mt-0.5 size-5" aria-hidden="true" />;
-                    break;
-                  default:
-                    icon = <ExclamationTriangleIcon className="size-5" aria-hidden="true" />;
-                }
-
-                return (
-                  <div className={classNames("rounded-md p-4", severity)} key={alert.ID}>
-                    <div className="flex">
-                      <div className="flex-shrink-0">{icon}</div>
-
-                      <div className="ml-3">
-                        <p className="text-sm">
-                          <strong className={"mb-1 inline-block text-base"}>{startCase(alert.EventType)}</strong>
-                          <br />
-                          {alert.Description}
-                        </p>
-                        <p className={"mt-2 text-sm font-bold"}>
-                          <a href={`https://az511.com/EventDetails/${org}/${id}?lang=en`} target={"_blank"} rel="noreferrer" className={"underline"}>
-                            More info
-                          </a>
-                        </p>
-                      </div>
+                    <div className="ml-3">
+                      <p className="text-base">Alerts are unavailable right now</p>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              )}
+
+              {alerts &&
+                alerts.map((alert) => {
+                  let icon: ReactNode;
+                  let severity: string;
+
+                  const [org, id] = alert.ID.split("--");
+
+                  switch (alert.Severity) {
+                    case "major":
+                      severity = "ring-1 ring-inset ring-red-300 dark:ring-red-800 bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200";
+                      break;
+                    case "minor":
+                    default:
+                      severity = "ring-1 ring-inset ring-slate-200 dark:ring-slate-700 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-white";
+                  }
+
+                  switch (alert.EventType) {
+                    case "accidentsAndIncidents":
+                      icon = <AccidentIcon className="size-6" aria-hidden="true" />;
+                      break;
+                    case "closures":
+                      icon = <NoSymbolIcon className="size-5" aria-hidden="true" />;
+                      break;
+                    case "roadwork":
+                      icon = <ConeIcon className="mt-0.5 size-5" aria-hidden="true" />;
+                      break;
+                    default:
+                      icon = <ExclamationTriangleIcon className="size-5" aria-hidden="true" />;
+                  }
+
+                  return (
+                    <div className={classNames("rounded-md p-4", severity)} key={alert.ID}>
+                      <div className="flex">
+                        <div className="flex-shrink-0">{icon}</div>
+
+                        <div className="ml-3">
+                          <p className="text-sm">
+                            <strong className={"mb-1 inline-block text-base"}>{startCase(alert.EventType)}</strong>
+                            <br />
+                            {alert.Description}
+                          </p>
+                          <p className={"mt-2 text-sm font-bold"}>
+                            <a href={`https://az511.com/EventDetails/${org}/${id}?lang=en`} target={"_blank"} rel="noreferrer" className={"underline"}>
+                              More info
+                            </a>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
             </div>
           </section>
 
