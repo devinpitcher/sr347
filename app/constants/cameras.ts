@@ -1,7 +1,15 @@
 export const CAMERAS = [
   {
+    name: "I-10 @ Wild Horse Pass",
+    id: "073",
+  },
+  {
     name: "I-10 @ Queen Creek",
     id: "074",
+  },
+  {
+    name: "Old Maricopa Rd.",
+    id: "2100",
   },
   {
     name: "Riggs Rd.",
