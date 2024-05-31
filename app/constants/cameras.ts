@@ -27,16 +27,16 @@ export const CAMERAS = [
     name: "Cobblestone / Lakeview",
     id: "2096",
   },
-  {
-    name: "Smith Enke Rd.",
-    id: "2095",
-    note: "I suspect this camera may have been decommissioned or is now managed by the city. I am investigating if there will be a way to access it again.",
-  },
-  {
-    name: "Edison Rd.",
-    id: "2094",
-    note: "I suspect this camera may have been decommissioned or is now managed by the city. I am investigating if there will be a way to access it again.",
-  },
+  // {
+  //   name: "Smith Enke Rd.",
+  //   id: "2095",
+  //   note: "I suspect this camera may have been decommissioned or is now managed by the city. I am investigating if there will be a way to access it again.",
+  // },
+  // {
+  //   name: "Edison Rd.",
+  //   id: "2094",
+  //   note: "I suspect this camera may have been decommissioned or is now managed by the city. I am investigating if there will be a way to access it again.",
+  // },
 ] satisfies {
   name: string;
   id: string;
