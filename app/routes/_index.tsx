@@ -61,6 +61,8 @@ export async function loader({ context }: LoaderFunctionArgs) {
 export default function Home() {
   const { alerts } = useLoaderData<typeof loader>();
 
+  const isAfternoon = new Date().getHours() >= 12;
+
   return (
     <section>
       <nav className="mx-auto flex flex-row items-center justify-center bg-slate-200 p-4 dark:bg-slate-700">
@@ -79,7 +81,7 @@ export default function Home() {
               <p className="mt-1 text-xs text-slate-500">Traffic updates every 5 minutes</p>
             </div>
 
-            <TrafficView />
+            <TrafficView isAfternoon={isAfternoon} />
 
             <p className="text-center text-xs text-slate-500">Live traffic data provided by Google Maps</p>
           </div>
@@ -187,8 +189,15 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 gap-y-4 py-4 lg:grid-cols-2 lg:gap-x-4">
-              {CAMERAS.map((camera) => (
-                <Camera key={camera.id} {...camera} />
+              {CAMERAS.map((camera, index) => (
+                <div
+                  style={{
+                    order: index * (isAfternoon ? 1 : -1) + 1,
+                  }}
+                  key={camera.id}
+                >
+                  <Camera {...camera} />
+                </div>
               ))}
             </div>
 

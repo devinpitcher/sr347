@@ -8,7 +8,7 @@ import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 
 dayjs.extend(isSameOrAfter);
 
-export default function TrafficView() {
+export default function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
   const { data, mutate } = useSWR<TrafficResponse>(`/api/traffic/347`, {
     fetcher: swrFetcher,
   });
@@ -36,8 +36,6 @@ export default function TrafficView() {
       };
     }
   }, [data]);
-
-  const isAfternoon = new Date().getHours() >= 12;
 
   return (
     <div>
