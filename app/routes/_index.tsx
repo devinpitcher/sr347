@@ -1,18 +1,17 @@
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
+import type { MetaFunction } from "@remix-run/cloudflare";
 import { CAMERAS } from "~/constants/cameras";
 import Camera from "~/components/Camera";
 import TrafficView from "~/components/TrafficView";
 import { HeartIcon, ExclamationTriangleIcon, NoSymbolIcon } from "@heroicons/react/20/solid";
-import { Fragment, ReactNode } from "react";
+import { Fragment, ReactNode, useEffect } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import SR347Logo from "~/assets/sr347.svg?react";
-import { json, useLoaderData } from "@remix-run/react";
-import { getAlerts } from "~/alerts.server";
 import AccidentIcon from "~/assets/accident.svg?react";
 import RoadIcon from "~/assets/road.svg?react";
 import ConeIcon from "~/assets/cone.svg?react";
 import classNames from "classnames";
 import lodash from "lodash";
+import { useFetcher } from "@remix-run/react";
 
 const { startCase } = lodash;
 
@@ -26,42 +25,19 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader({ context }: LoaderFunctionArgs) {
-  const {
-    env: { KV, AZ511_API_KEY },
-  } = context.cloudflare;
-
-  const key = `traffic-alerts`;
-
-  const value = await KV.get(key);
-
-  if (value !== null) {
-    return json({
-      alerts: JSON.parse(value) as Alert[],
-    });
-  }
-
-  try {
-    const alerts = await getAlerts(AZ511_API_KEY);
-
-    await KV.put(key, JSON.stringify(alerts), {
-      expirationTtl: 60 * 5,
-    });
-
-    return json({
-      alerts,
-    });
-  } catch (e) {
-    return json({
-      alerts: null,
-    });
-  }
-}
-
 export default function Home() {
-  const { alerts } = useLoaderData<typeof loader>();
-
   const isAfternoon = new Date().getHours() >= 12;
+  const alertsFetcher = useFetcher<Alert[]>({ key: "alerts" });
+  const alerts = alertsFetcher.data || [];
+
+  useEffect(() => {
+    setInterval(
+      () => {
+        alertsFetcher.load("/api/alerts");
+      },
+      5 * 1000 * 60
+    );
+  }, [alertsFetcher]);
 
   return (
     <section>
