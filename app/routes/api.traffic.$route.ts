@@ -1,10 +1,13 @@
 import { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { ROUTES } from "~/constants/routes";
 import { type DistanceMatrixResponseData } from "@googlemaps/google-maps-services-js";
+import { Redis } from "@upstash/redis/cloudflare";
+import dayjs from "dayjs";
 
 export const loader = async ({ context, params }: LoaderFunctionArgs) => {
   const {
-    env: { KV },
+    ctx: { waitUntil },
+    env: { UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL },
   } = context.cloudflare;
   const matchedRoute = ROUTES.find(({ key }) => key.toLowerCase() === params.route!.toLowerCase());
 
@@ -15,24 +18,43 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
     });
   }
 
-  const key = `route-${matchedRoute.key}`;
+  const redis = new Redis({
+    url: UPSTASH_REDIS_REST_URL,
+    token: UPSTASH_REDIS_REST_TOKEN,
+  });
 
-  const value = await KV.get(key);
+  const key = `route-${matchedRoute.key}`;
+  const lockKey = `route-${matchedRoute.key}-lock`;
+  const value = await redis.get<TrafficResponse>(key);
+
+  const updateCachedTraffic = async () => {
+    const trafficResponse = await computeTraffic(matchedRoute, context.cloudflare.env.MAPS_API_KEY);
+    await redis.set(key, trafficResponse);
+    await redis.del(lockKey);
+
+    return trafficResponse;
+  };
 
   if (value !== null) {
-    return Response.json(JSON.parse(value));
+    const expires = dayjs(value.lastUpdated).add(5, "minutes");
+
+    if (dayjs().isSameOrAfter(expires)) {
+      const lock = await redis.set(lockKey, true, { nx: true });
+
+      if (lock === "OK") {
+        waitUntil(updateCachedTraffic());
+      }
+    }
+
+    return Response.json(value);
   }
 
-  const trafficResponse = await computeTraffic(matchedRoute, context.cloudflare.env.MAPS_API_KEY);
-
-  await KV.put(key, JSON.stringify(trafficResponse), {
-    expirationTtl: 60 * 5,
-  });
+  const trafficResponse = await updateCachedTraffic();
 
   return Response.json(trafficResponse);
 };
 
-async function computeTraffic(route: Route, apiKey: string) {
+async function computeTraffic(route: Route, apiKey: string): Promise<TrafficResponse> {
   const now = new Date();
 
   const results = await Promise.all(
@@ -65,7 +87,7 @@ async function computeTraffic(route: Route, apiKey: string) {
         duration_in_traffic: results[1].rows[0].elements[0].duration_in_traffic.value,
       },
     },
-    lastUpdated: now.toUTCString(),
+    lastUpdated: dayjs().toISOString(),
   };
 }
 

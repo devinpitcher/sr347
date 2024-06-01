@@ -12,4 +12,6 @@ interface Env {
   MAPS_API_KEY: string;
   KV: KVNamespace;
   AZ511_API_KEY: string;
+  UPSTASH_REDIS_REST_URL: string;
+  UPSTASH_REDIS_REST_TOKEN: string;
 }

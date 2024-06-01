@@ -21,6 +21,7 @@
     "@remix-run/cloudflare": "^2.8.1",
     "@remix-run/cloudflare-pages": "^2.8.1",
     "@remix-run/react": "^2.8.1",
+    "@upstash/redis": "^1.31.3",
     "classnames": "^2.5.1",
     "dayjs": "^1.11.10",
     "isbot": "^4.1.0",
