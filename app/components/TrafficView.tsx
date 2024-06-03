@@ -5,29 +5,36 @@ import { swrFetcher } from "~/utils/swr";
 import { useEffect } from "react";
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import useTabVisibility from "~/utils/hooks/useTabVisibility";
 
 dayjs.extend(isSameOrAfter);
 
 export default function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
+  const shouldUpdate = useTabVisibility();
+
   const { data, mutate } = useSWR<TrafficResponse>(`/api/traffic/347`, {
     fetcher: swrFetcher,
+    revalidateOnFocus: false,
   });
 
   useEffect(() => {
+    if (!shouldUpdate) return;
+
     if (data?.lastUpdated) {
       const lastUpdated = dayjs(data.lastUpdated);
 
       let timeout: NodeJS.Timeout | null = null;
       let interval: NodeJS.Timeout | null = null;
 
-      const firstRefreshMs = Math.max(0, dayjs(lastUpdated).add(5, "minutes").subtract(15, "seconds").diff());
+      const expirationDate = dayjs(lastUpdated).add(5, "minutes");
+      const firstRefreshMs = Math.max(0, expirationDate.diff());
 
       timeout = setTimeout(() => {
-        if (dayjs().isSameOrAfter(lastUpdated)) {
-          interval = setInterval(() => {
-            mutate();
-          }, 15 * 1000);
-        }
+        mutate();
+
+        interval = setInterval(() => {
+          mutate();
+        }, 30 * 1000);
       }, firstRefreshMs);
 
       return () => {
@@ -35,7 +42,7 @@ export default function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
         if (timeout) clearTimeout(timeout);
       };
     }
-  }, [data]);
+  }, [data, shouldUpdate]);
 
   return (
     <div>
