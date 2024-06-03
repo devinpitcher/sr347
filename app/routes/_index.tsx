@@ -3,7 +3,7 @@ import { CAMERAS } from "~/constants/cameras";
 import Camera from "~/components/Camera";
 import TrafficView from "~/components/TrafficView";
 import { HeartIcon, ExclamationTriangleIcon, NoSymbolIcon } from "@heroicons/react/20/solid";
-import { Fragment, ReactNode, useEffect } from "react";
+import { Fragment, ReactNode } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import SR347Logo from "~/assets/sr347.svg?react";
 import AccidentIcon from "~/assets/accident.svg?react";
@@ -11,7 +11,8 @@ import RoadIcon from "~/assets/road.svg?react";
 import ConeIcon from "~/assets/cone.svg?react";
 import classNames from "classnames";
 import lodash from "lodash";
-import { useFetcher } from "@remix-run/react";
+import useSWR from "swr";
+import { swrFetcher } from "~/utils/swr";
 
 const { startCase } = lodash;
 
@@ -27,17 +28,16 @@ export const meta: MetaFunction = () => {
 
 export default function Home() {
   const isAfternoon = new Date().getHours() >= 12;
-  const alertsFetcher = useFetcher<Alert[]>({ key: "alerts" });
-  const alerts = alertsFetcher.data || [];
 
-  useEffect(() => {
-    setInterval(
-      () => {
-        alertsFetcher.load("/api/alerts");
-      },
-      5 * 1000 * 60
-    );
-  }, [alertsFetcher]);
+  const { data: alertsData, isLoading } = useSWR<Alert[]>("/api/alerts", {
+    fetcher: swrFetcher,
+    revalidateOnFocus: true,
+    refreshWhenHidden: false,
+    revalidateIfStale: false,
+    refreshInterval: 10 * 60 * 1000,
+  });
+
+  const alerts = alertsData || [];
 
   return (
     <section>
@@ -69,10 +69,26 @@ export default function Home() {
               <span>Traffic Alerts</span>&nbsp;<span className="ml-1 rounded bg-red-700 px-2 py-0.5 text-sm text-white">Beta</span>
             </h2>
 
-            <p className="mb-4 mt-1 text-xs text-slate-500">Alerts are updated every 5 minutes</p>
+            <p className="mb-4 mt-1 text-xs text-slate-500">Alerts are updated every 10 minutes</p>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              {alerts && alerts.length === 0 && (
+              {isLoading && (
+                <div className="rounded-md bg-slate-100 p-4 text-slate-800 ring-1 ring-inset ring-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-800">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <RoadIcon className="size-6" aria-hidden="true" />
+                    </div>
+
+                    <div className="ml-3">
+                      <p className="text-sm">
+                        <strong className={"mb-1 inline-block text-base"}>Loading current traffic alerts...</strong>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {!isLoading && alerts && alerts.length === 0 && (
                 <div className="rounded-md bg-green-100 p-4 text-green-800 ring-1 ring-inset ring-green-200 dark:bg-green-900 dark:text-green-200 dark:ring-green-800">
                   <div className="flex">
                     <div className="flex-shrink-0">
