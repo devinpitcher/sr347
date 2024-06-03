@@ -13,6 +13,7 @@ import classNames from "classnames";
 import lodash from "lodash";
 import useSWR from "swr";
 import { swrFetcher } from "~/utils/swr";
+import Banner from "~/components/Banner";
 
 const { startCase } = lodash;
 
@@ -41,6 +42,8 @@ export default function Home() {
 
   return (
     <section>
+      <Banner />
+
       <nav className="mx-auto flex flex-row items-center justify-center bg-slate-200 p-4 dark:bg-slate-700">
         <span className="mr-1 mt-1 text-lg font-semibold">SR</span>
         <span className="sr-only">347</span>
@@ -214,10 +217,13 @@ export default function Home() {
             <h2 className="font-bold tracking-tight text-white sm:text-4xl">👋 Hi there! Thanks for stopping by.</h2>
 
             <p className="mx-auto mt-6 text-lg leading-8 text-gray-300">
-              This website is created and maintained by a fellow Maricopian trying to make commuting the 347 a little less stressful. If you find this website
-              useful, please consider a small donation. Integrating Google Maps functionality into this website isn&apos;t completely free, but I&apos;d like to
-              provide this service to people at no cost. If you have the means, your donation help offset the cost of running this service and further
-              development. Thank you!
+              This website is created and maintained by{" "}
+              <a href="https://devinpitcher.com?ref=sr347.com" className="underline" target="_blank">
+                a fellow Maricopan / software engineer
+              </a>{" "}
+              trying to make commuting the 347 a little less stressful. If you find this website useful, please consider a small donation. Integrating Google
+              Maps functionality into this website isn&apos;t completely free, but I&apos;d like to provide this service to people at no cost. If you have the
+              means, your donation help offset the cost of running this service and further development. Thank you!
             </p>
 
             <div className="mt-10 flex items-center justify-center gap-x-6">
@@ -273,8 +279,6 @@ export default function Home() {
             </radialGradient>
           </defs>
         </svg>
-
-        <div className="mb-2 text-center text-xs text-gray-200 opacity-50 dark:text-gray-900">v20240430CF</div>
       </footer>
     </section>
   );
