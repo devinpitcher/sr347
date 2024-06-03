@@ -2,11 +2,22 @@ import { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { Redis } from "@upstash/redis/cloudflare";
 import dayjs from "dayjs";
 
-export const loader = async ({ context }: LoaderFunctionArgs) => {
+export const loader = async ({ context, request }: LoaderFunctionArgs) => {
   const {
     ctx: { waitUntil },
     env: { UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL, AZ511_API_KEY },
   } = context.cloudflare;
+
+  if (new URL(request.url).searchParams.get("v") !== "2") {
+    return Response.json(
+      {
+        error: "Please use /api/alerts?v=2",
+      },
+      {
+        status: 400,
+      }
+    );
+  }
 
   const redis = new Redis({
     url: UPSTASH_REDIS_REST_URL,

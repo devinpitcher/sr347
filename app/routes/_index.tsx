@@ -29,7 +29,7 @@ export const meta: MetaFunction = () => {
 export default function Home() {
   const isAfternoon = new Date().getHours() >= 12;
 
-  const { data: alertsData, isLoading } = useSWR<Alert[]>("/api/alerts", {
+  const { data: alertsData, isLoading } = useSWR<Alert[]>("/api/alerts?v=2", {
     fetcher: swrFetcher,
     revalidateOnFocus: true,
     refreshWhenHidden: false,
