@@ -2,7 +2,7 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import { useLocalStorageState } from "ahooks";
 
 export default function Banner() {
-  const [bannerDismissed = false, setBannerDismissed] = useLocalStorageState("banner-dismissed", {
+  const [bannerDismissed = false, setBannerDismissed] = useLocalStorageState<boolean>("banner-dismissed", {
     defaultValue: false,
   });
 
@@ -15,9 +15,9 @@ export default function Banner() {
         <svg viewBox="0 0 2 2" className="mx-2 inline h-0.5 w-0.5 fill-current" aria-hidden="true">
           <circle cx={1} cy={1} r={1} />
         </svg>
-        Due to increased usage last month, I just paid <strong>$96.77</strong> for a bill from Google for the month of May. While I am trying to keep this
-        service running for free, if you use this site a lot, please consider donating to help keep this site running. Donation links can be found at the bottom
-        of the page. Thank you! ❤️
+        Due to increased usage last month, I paid <strong>$96.77</strong> to Google for the month of May. While I am trying to keep this service running for
+        free to use, if you use this site a lot, please consider a small donation to help keep it running. Donation links can be found at the bottom of the
+        page. Thank you, Maricopa! ❤️
       </p>
       <button
         type="button"
