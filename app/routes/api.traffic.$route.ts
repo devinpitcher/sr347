@@ -39,7 +39,7 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
     const expires = dayjs(value.lastUpdated).add(5, "minutes");
 
     if (dayjs().isSameOrAfter(expires)) {
-      const lock = await redis.set(lockKey, true, { nx: true });
+      const lock = await redis.set(lockKey, true, { ex: 60 });
 
       if (lock === "OK") {
         waitUntil(updateCachedTraffic());
