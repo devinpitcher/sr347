@@ -40,6 +40,12 @@ export default function Home() {
 
   const alerts = alertsData || [];
 
+  let sortedCameras = CAMERAS;
+
+  if (isAfternoon) {
+    sortedCameras = sortedCameras.reverse();
+  }
+
   return (
     <section>
       <Banner />
@@ -184,15 +190,8 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 gap-y-4 py-4 lg:grid-cols-2 lg:gap-x-4">
-              {CAMERAS.map((camera, index) => (
-                <div
-                  style={{
-                    order: index * (isAfternoon ? 1 : -1) + 1,
-                  }}
-                  key={camera.id}
-                >
-                  <Camera {...camera} />
-                </div>
+              {sortedCameras.map((camera) => (
+                <Camera {...camera} key={camera.id} />
               ))}
             </div>
 
