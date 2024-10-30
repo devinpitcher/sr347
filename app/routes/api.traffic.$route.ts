@@ -25,7 +25,7 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
 
   const key = `route-${matchedRoute.key}`;
   const lockKey = `route-${matchedRoute.key}-lock`;
-  const value = await redis.get<TrafficResponse>(key);
+  const cachedValue = await redis.get<TrafficResponse>(key);
 
   const updateCachedTraffic = async () => {
     const trafficResponse = await computeTraffic(matchedRoute, context.cloudflare.env.MAPS_API_KEY);
@@ -35,18 +35,22 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
     return trafficResponse;
   };
 
-  if (value !== null) {
-    const expires = dayjs(value.lastUpdated).add(5, "minutes");
+  if (cachedValue !== null) {
+    const expires = dayjs(cachedValue.lastUpdated).add(5, "minutes");
 
     if (dayjs().isSameOrAfter(expires)) {
-      const lock = await redis.set(lockKey, true, { ex: 60 });
+      const hasLock = Boolean(await redis.exists(lockKey));
 
-      if (lock === "OK") {
-        waitUntil(updateCachedTraffic());
+      if (hasLock) {
+        return Response.json(cachedValue);
       }
+
+      await redis.set(lockKey, true, { ex: 60 });
+
+      waitUntil(updateCachedTraffic());
     }
 
-    return Response.json(value);
+    return Response.json(cachedValue);
   }
 
   const trafficResponse = await updateCachedTraffic();
