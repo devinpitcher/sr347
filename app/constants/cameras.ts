@@ -23,11 +23,11 @@ export const CAMERAS = [
     name: "Casa Blanca Rd.",
     id: "2097",
   },
-  {
-    name: "Cobblestone / Lakeview",
-    id: "2096",
-    note: "I suspect this camera may have been decommissioned or is now managed by the city. I am investigating if there will be a way to access it again.",
-  },
+  // {
+  //   name: "Cobblestone / Lakeview",
+  //   id: "2096",
+  //   note: "I suspect this camera may have been decommissioned or is now managed by the city. I am investigating if there will be a way to access it again.",
+  // },
   // {
   //   name: "Smith Enke Rd.",
   //   id: "2095",
