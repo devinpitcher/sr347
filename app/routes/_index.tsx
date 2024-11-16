@@ -39,11 +39,10 @@ export default function Home() {
   });
 
   const alerts = alertsData || [];
+  const sortedCameras = [...CAMERAS];
 
-  let sortedCameras = CAMERAS;
-
-  if (isAfternoon) {
-    sortedCameras = sortedCameras.reverse();
+  if (!isAfternoon) {
+    sortedCameras.reverse();
   }
 
   return (
