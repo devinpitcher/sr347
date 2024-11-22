@@ -14,6 +14,7 @@ import lodash from "lodash";
 import useSWR from "swr";
 import { swrFetcher } from "~/utils/swr";
 import Banner from "~/components/Banner";
+import { SEVERITY_MAJOR_CLASSES } from "~/constants/styles";
 
 const { startCase } = lodash;
 
@@ -131,11 +132,9 @@ export default function Home() {
                   let icon: ReactNode;
                   let severity: string;
 
-                  const [org, id] = alert.ID.split("--");
-
                   switch (alert.Severity) {
                     case "major":
-                      severity = "ring-1 ring-inset ring-red-300 dark:ring-red-800 bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200";
+                      severity = SEVERITY_MAJOR_CLASSES;
                       break;
                     case "minor":
                     default:
@@ -145,6 +144,7 @@ export default function Home() {
                   switch (alert.EventType) {
                     case "accidentsAndIncidents":
                       icon = <AccidentIcon className="size-6" aria-hidden="true" />;
+                      severity = SEVERITY_MAJOR_CLASSES;
                       break;
                     case "closures":
                       icon = <NoSymbolIcon className="size-5" aria-hidden="true" />;
@@ -168,7 +168,7 @@ export default function Home() {
                             {alert.Description}
                           </p>
                           <p className={"mt-2 text-sm font-bold"}>
-                            <a href={`https://az511.com/EventDetails/${org}/${id}?lang=en`} target={"_blank"} rel="noreferrer" className={"underline"}>
+                            <a href={`https://az511.com/Event/Incidents/${alert.ID}`} target={"_blank"} rel="noreferrer" className={"underline"}>
                               More info
                             </a>
                           </p>
