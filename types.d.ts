@@ -42,6 +42,11 @@ declare global {
     lastUpdated: string;
   };
 
+  export interface AlertsResponse {
+    alerts: Alert[];
+    lastUpdated: string;
+  }
+
   export interface Alert {
     Description: string;
     Details: string;
