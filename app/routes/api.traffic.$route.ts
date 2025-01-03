@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 export const loader = async ({ context, params }: LoaderFunctionArgs) => {
   const {
     ctx: { waitUntil },
-    env: { UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL },
+    env: { UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL, CF_PAGES_COMMIT_SHA },
   } = context.cloudflare;
   const matchedRoute = ROUTES.find(({ key }) => key.toLowerCase() === params.route!.toLowerCase());
 
@@ -50,12 +50,18 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
       waitUntil(updateCachedTraffic());
     }
 
-    return Response.json(cachedValue);
+    return Response.json({
+      ...cachedValue,
+      appVersion: CF_PAGES_COMMIT_SHA,
+    } satisfies WithAppVersion<TrafficResponse>);
   }
 
   const trafficResponse = await updateCachedTraffic();
 
-  return Response.json(trafficResponse);
+  return Response.json({
+    ...trafficResponse,
+    appVersion: CF_PAGES_COMMIT_SHA,
+  } satisfies WithAppVersion<TrafficResponse>);
 };
 
 async function computeTraffic(route: Route, apiKey: string): Promise<TrafficResponse> {

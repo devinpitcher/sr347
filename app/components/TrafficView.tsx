@@ -2,15 +2,17 @@ import TrafficSign from "~/components/TrafficSign";
 import { ROUTES } from "~/constants/routes";
 import useSWR from "swr";
 import { swrFetcher } from "~/utils/swr";
-import { useEffect } from "react";
+import { useContext } from "react";
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
-import useTabVisibility from "~/utils/hooks/useTabVisibility";
+import { appContext } from "~/utils/context";
 
 dayjs.extend(isSameOrAfter);
 
 export default function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
-  const { data } = useSWR<TrafficResponse>(`/api/traffic/347`, {
+  const { appVersion } = useContext(appContext);
+
+  const { data } = useSWR<WithAppVersion<TrafficResponse>>(`/api/traffic/347`, {
     fetcher: swrFetcher,
     revalidateOnFocus: false,
     refreshWhenHidden: false,
@@ -27,6 +29,11 @@ export default function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
       console.log(`refreshInterval: ${refreshInterval / 1_000}s`);
 
       return refreshInterval;
+    },
+    onSuccess: (data) => {
+      if (!!appVersion && !!data.appVersion && data.appVersion !== appVersion) {
+        window.location.reload();
+      }
     },
   });
 

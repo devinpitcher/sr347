@@ -42,6 +42,10 @@ declare global {
     lastUpdated: string;
   };
 
+  export type WithAppVersion<T extends object> = T & {
+    appVersion?: string;
+  };
+
   export interface AlertsResponse {
     alerts: Alert[];
     lastUpdated: string;

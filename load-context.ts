@@ -13,4 +13,6 @@ interface Env {
   AZ511_API_KEY: string;
   UPSTASH_REDIS_REST_URL: string;
   UPSTASH_REDIS_REST_TOKEN: string;
+  CF_PAGES?: string;
+  CF_PAGES_COMMIT_SHA?: string;
 }
