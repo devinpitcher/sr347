@@ -214,6 +214,10 @@ export default function Home() {
                   <br />
                   We cannot control or guarantee the positioning of the views or availability of these cameras.
                 </p>
+
+                <p className="mt-2 text-center font-mono text-xs text-slate-800">
+                  <strong>App version:</strong> {appVersion}
+                </p>
               </div>
             </section>
           </section>
