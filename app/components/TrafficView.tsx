@@ -10,39 +10,25 @@ import useTabVisibility from "~/utils/hooks/useTabVisibility";
 dayjs.extend(isSameOrAfter);
 
 export default function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
-  const shouldUpdate = useTabVisibility();
-
-  const { data, mutate } = useSWR<TrafficResponse>(`/api/traffic/347`, {
+  const { data } = useSWR<TrafficResponse>(`/api/traffic/347`, {
     fetcher: swrFetcher,
     revalidateOnFocus: false,
-  });
+    refreshWhenHidden: false,
+    revalidateOnReconnect: true,
+    revalidateOnMount: true,
+    refreshInterval: (data) => {
+      if (!data) return 60_000;
 
-  useEffect(() => {
-    if (!shouldUpdate) return;
-
-    if (data?.lastUpdated) {
       const lastUpdated = dayjs(data.lastUpdated);
-
-      let timeout: NodeJS.Timeout | null = null;
-      let interval: NodeJS.Timeout | null = null;
-
       const expirationDate = dayjs(lastUpdated).add(5, "minutes");
-      const firstRefreshMs = Math.max(0, expirationDate.diff());
+      const msUntilStale = expirationDate.diff();
+      const refreshInterval = Math.max(30_000, msUntilStale);
 
-      timeout = setTimeout(() => {
-        mutate();
+      console.log(`refreshInterval: ${refreshInterval / 1_000}s`);
 
-        interval = setInterval(() => {
-          mutate();
-        }, 30 * 1000);
-      }, firstRefreshMs);
-
-      return () => {
-        if (interval) clearInterval(interval);
-        if (timeout) clearTimeout(timeout);
-      };
-    }
-  }, [data, shouldUpdate]);
+      return refreshInterval;
+    },
+  });
 
   return (
     <div>
