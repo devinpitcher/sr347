@@ -3,7 +3,7 @@ import { CAMERAS } from "~/constants/cameras";
 import Camera from "~/components/Camera";
 import TrafficView from "~/components/TrafficView";
 import { HeartIcon, ExclamationTriangleIcon, NoSymbolIcon } from "@heroicons/react/20/solid";
-import { Fragment, ReactNode } from "react";
+import { Fragment, ReactNode, useEffect, useRef } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import SR347Logo from "~/assets/sr347.svg?react";
 import AccidentIcon from "~/assets/accident.svg?react";
@@ -17,6 +17,8 @@ import Banner from "~/components/Banner";
 import { SEVERITY_MAJOR_CLASSES } from "~/constants/styles";
 import { useLoaderData } from "@remix-run/react";
 import { appContext } from "~/utils/context";
+import useTabVisibility from "~/utils/hooks/useTabVisibility";
+import { trackPage } from "~/utils/umami";
 
 const { startCase } = lodash;
 
@@ -39,6 +41,26 @@ export const loader = async ({ context }: LoaderFunctionArgs) => {
 export default function Home() {
   const { appVersion } = useLoaderData<typeof loader>();
   const isAfternoon = new Date().getHours() >= 12;
+  const appVisible = useTabVisibility();
+
+  const lastVisibleRef = useRef<number>(Date.now());
+
+  useEffect(() => {
+    if (appVisible) {
+      if (Date.now() - lastVisibleRef.current >= 1_000 * 60 * 5) {
+        console.log("Welcome back!");
+        trackPage();
+      } else {
+        console.log("Back so soon?");
+      }
+
+      return () => {
+        lastVisibleRef.current = Date.now();
+      };
+    }
+
+    console.log("See you later!");
+  }, [appVisible]);
 
   const { data: alertsData, isLoading } = useSWR<Alert[]>("/api/alerts", {
     fetcher: swrFetcher,
