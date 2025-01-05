@@ -49,7 +49,10 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
       const hasLock = Boolean(await redis.exists(lockKey));
 
       if (hasLock) {
-        return Response.json(cachedValue);
+        return Response.json({
+          ...cachedValue,
+          appVersion: CF_PAGES_COMMIT_SHA,
+        } satisfies WithAppVersion<TrafficResponse>);
       }
 
       await redis.set(lockKey, true, { ex: 60 });
