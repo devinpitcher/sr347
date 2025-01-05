@@ -1,8 +1,7 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import classNames from "classnames";
 import I10Logo from "../assets/i10.svg?react";
 import reactStringReplace from "react-string-replace";
-import useTabVisibility from "~/utils/hooks/useTabVisibility";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import useSWR from "swr";
 import { appContext } from "~/utils/context";
