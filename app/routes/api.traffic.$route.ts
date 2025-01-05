@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 export const loader = async ({ context, params }: LoaderFunctionArgs) => {
   const {
     ctx: { waitUntil },
-    env: { UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL, CF_PAGES_COMMIT_SHA },
+    env: { UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL, CF_PAGES_COMMIT_SHA, MAPS_API_KEY },
   } = context.cloudflare;
   const matchedRoute = ROUTES.find(({ key }) => key.toLowerCase() === params.route!.toLowerCase());
 
@@ -28,7 +28,7 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
   const cachedValue = await redis.get<TrafficResponse>(key);
 
   const updateCachedTraffic = async () => {
-    const trafficResponse = await computeTraffic(matchedRoute, context.cloudflare.env.MAPS_API_KEY);
+    const trafficResponse = await computeTraffic(matchedRoute, MAPS_API_KEY);
     await redis.set(key, trafficResponse);
     await redis.del(lockKey);
 
@@ -65,6 +65,8 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
 };
 
 async function computeTraffic(route: Route, apiKey: string): Promise<TrafficResponse> {
+  if (!apiKey) throw new Error("Google Maps API key required");
+
   const now = new Date();
 
   const results = await Promise.all(
