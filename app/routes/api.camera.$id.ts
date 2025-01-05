@@ -26,9 +26,7 @@ export const loader = async ({ params, request, context }: LoaderFunctionArgs) =
 
   const url = `http://vods.az511.com/adot_${params.id}.jpg?v=${new Date().getTime()}`;
 
-  const response = await fetch(url, {
-    cache: "no-cache",
-  });
+  const response = await fetch(url);
 
   if (!response.ok) {
     return new Response(null, {
