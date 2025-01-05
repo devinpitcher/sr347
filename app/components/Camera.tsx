@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 import I10Logo from "../assets/i10.svg?react";
 import reactStringReplace from "react-string-replace";
 import useTabVisibility from "~/utils/hooks/useTabVisibility";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import useSWR from "swr";
+import { appContext } from "~/utils/context";
+import { APP_VERSION_HEADER } from "~/constants/app";
 
 interface CameraProps {
   id: string;
@@ -12,40 +15,63 @@ interface CameraProps {
 }
 
 export default function Camera({ id, name, note }: CameraProps) {
+  const { appVersion } = useContext(appContext);
+  const imageRef = useRef<HTMLImageElement | null>(null);
   const [hasLoaded, setHasLoaded] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
-  const [currentTime, setCurrentTime] = useState<number>();
-  const shouldUpdate = useTabVisibility();
 
-  useEffect(() => {
-    if (hasError || !shouldUpdate) return;
+  useSWR(
+    `/api/camera/${id}`,
+    (url: string) => {
+      const requestUrl = new URL(url, window.location.href);
 
-    const interval = setInterval(() => {
-      setCurrentTime(new Date().getTime());
-    }, 15 * 1000);
+      requestUrl.searchParams.set("v", Date.now().toString());
 
-    setCurrentTime(new Date().getTime());
+      return fetch(requestUrl, {
+        headers: {
+          [APP_VERSION_HEADER]: appVersion ?? "",
+        },
+      });
+    },
+    {
+      revalidateOnMount: true,
+      refreshInterval: 15 * 1_000,
+      revalidateOnFocus: true,
+      shouldRetryOnError: true,
+      errorRetryCount: 5,
+      keepPreviousData: true,
+      onSuccess: async (response) => {
+        if (!imageRef.current || !response) return;
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, [hasError, shouldUpdate]);
+        setHasError(false);
+
+        try {
+          URL.revokeObjectURL(imageRef.current.src);
+        } catch {
+          //
+        }
+
+        try {
+          const blob = await response.blob();
+
+          imageRef.current.src = URL.createObjectURL(blob);
+
+          setHasLoaded(true);
+        } catch {
+          setHasError(true);
+        }
+      },
+      onError: () => {
+        setHasError(true);
+      },
+    }
+  );
 
   return (
     <div>
       <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-gray-100 shadow-inner dark:bg-slate-800">
         {!hasError && (
-          <img
-            className={classNames("z-10 h-full w-full object-cover transition-opacity", { "opacity-0": !hasLoaded || hasError })}
-            src={currentTime ? `/api/camera/${id}?v=${currentTime}` : undefined}
-            onError={() => {
-              setHasError(true);
-            }}
-            onLoad={() => {
-              setHasLoaded(true);
-              setHasError(false);
-            }}
-          />
+          <img ref={imageRef} className={classNames("z-10 h-full w-full object-cover transition-opacity", { "opacity-0": !hasLoaded || hasError })} alt="" />
         )}
 
         <div className="absolute left-0 top-0 z-0 flex h-full w-full items-center justify-center text-center text-slate-400">
