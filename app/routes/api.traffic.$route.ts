@@ -36,6 +36,13 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
   };
 
   if (cachedValue !== null) {
+    if (!MAPS_API_KEY) {
+      return Response.json({
+        ...cachedValue,
+        appVersion: CF_PAGES_COMMIT_SHA,
+      } satisfies WithAppVersion<TrafficResponse>);
+    }
+
     const expires = dayjs(cachedValue.lastUpdated).add(5, "minutes");
 
     if (dayjs().isSameOrAfter(expires)) {
