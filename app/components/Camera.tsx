@@ -21,22 +21,29 @@ export default function Camera({ id, name, note }: CameraProps) {
 
   useSWR(
     `/api/camera/${id}`,
-    (url: string) => {
+    async (url: string) => {
       const requestUrl = new URL(url, window.location.href);
 
       requestUrl.searchParams.set("v", Date.now().toString());
 
-      return fetch(requestUrl, {
+      const result = await fetch(requestUrl, {
         headers: {
           [APP_VERSION_HEADER]: appVersion ?? "",
         },
       });
+
+      if (!result.ok) {
+        throw new Error(result.statusText);
+      }
+
+      return result;
     },
     {
       revalidateOnMount: true,
       refreshInterval: 15 * 1_000,
       revalidateOnFocus: true,
       shouldRetryOnError: true,
+      errorRetryInterval: 30_000,
       errorRetryCount: 5,
       keepPreviousData: true,
       onSuccess: async (response) => {
