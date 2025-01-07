@@ -43,11 +43,14 @@ export default function Home() {
   const isAfternoon = new Date().getHours() >= 12;
   const appVisible = useTabVisibility();
 
-  const lastVisibleRef = useRef<number>(Date.now());
+  const lastVisibleRef = useRef<number>();
 
   useEffect(() => {
     if (appVisible) {
-      if (Date.now() - lastVisibleRef.current >= 1_000 * 60 * 5) {
+      if (!lastVisibleRef.current) {
+        console.log("Welcome!");
+        lastVisibleRef.current = Date.now();
+      } else if (Date.now() - lastVisibleRef.current >= 1_000 * 60 * 5) {
         console.log("Welcome back!");
         trackPage();
       } else {
