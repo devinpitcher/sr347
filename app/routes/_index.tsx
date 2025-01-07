@@ -240,8 +240,8 @@ export default function Home() {
                   We cannot control or guarantee the positioning of the views or availability of these cameras.
                 </p>
 
-                <p className="mt-2 text-center font-mono text-xs text-slate-800">
-                  <strong>App version:</strong> {appVersion}
+                <p className="mt-2 text-center font-mono text-xs text-slate-300 dark:text-slate-800">
+                  <strong>App version:</strong> {appVersion?.slice(-7)}
                 </p>
               </div>
             </section>
