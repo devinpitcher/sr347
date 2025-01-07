@@ -36,6 +36,10 @@ export default function Camera({ id, name, note }: CameraProps) {
         throw new Error(result.statusText);
       }
 
+      if (result.headers.get(APP_VERSION_HEADER) !== appVersion) {
+        window.location.reload();
+      }
+
       return result;
     },
     {

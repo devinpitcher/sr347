@@ -19,6 +19,7 @@ export const loader = async ({ params, request, context }: LoaderFunctionArgs) =
       {
         headers: {
           "content-type": "image/svg+xml",
+          [APP_VERSION_HEADER]: appVersion ?? "",
         },
       }
     );
