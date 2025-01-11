@@ -35,11 +35,17 @@ export const Providers = ({ children, appVersion }: PropsWithChildren<ProvidersP
           window.location.reload();
         }
 
-        if (result.headers.get("content-type") === "application/json") {
+        const contentType = result.headers.get("content-type") ?? "";
+
+        if (contentType === "application/json") {
           return result.json();
         }
 
-        return result.blob();
+        if (contentType.startsWith("image/")) {
+          return result.blob();
+        }
+
+        return result;
       },
     } satisfies SWRConfiguration;
   }, [appVersion]);
