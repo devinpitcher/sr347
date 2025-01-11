@@ -16,7 +16,7 @@ import { swrFetcher } from "~/utils/swr";
 import Banner from "~/components/Banner";
 import { SEVERITY_MAJOR_CLASSES } from "~/constants/styles";
 import { useLoaderData } from "@remix-run/react";
-import { appContext } from "~/utils/context";
+import { AppContext } from "~/utils/context";
 import useTabVisibility from "~/utils/hooks/useTabVisibility";
 import { trackPage } from "~/utils/umami";
 
@@ -81,7 +81,7 @@ export default function Home() {
   }
 
   return (
-    <appContext.Provider value={{ appVersion }}>
+    <AppContext.Provider value={{ appVersion }}>
       <section>
         <Banner />
 
@@ -318,6 +318,6 @@ export default function Home() {
           </svg>
         </footer>
       </section>
-    </appContext.Provider>
+    </AppContext.Provider>
   );
 }

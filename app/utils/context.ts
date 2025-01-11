@@ -1,9 +1,9 @@
 import { createContext } from "react";
 
-type AppContext = {
+interface IAppContext {
   appVersion?: string;
-};
+}
 
-export const appContext = createContext<AppContext>({
+export const AppContext = createContext<IAppContext>({
   appVersion: undefined,
 });

@@ -4,7 +4,7 @@ import I10Logo from "../assets/i10.svg?react";
 import reactStringReplace from "react-string-replace";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import useSWR from "swr";
-import { appContext } from "~/utils/context";
+import { AppContext } from "~/utils/context";
 import { APP_VERSION_HEADER } from "~/constants/app";
 
 interface CameraProps {
@@ -14,7 +14,7 @@ interface CameraProps {
 }
 
 export default function Camera({ id, name, note }: CameraProps) {
-  const { appVersion } = useContext(appContext);
+  const { appVersion } = useContext(AppContext);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const [hasLoaded, setHasLoaded] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
