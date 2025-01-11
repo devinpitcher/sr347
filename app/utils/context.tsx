@@ -1,6 +1,5 @@
 import { createContext, PropsWithChildren, useMemo } from "react";
 import { SWRConfig, SWRConfiguration } from "swr";
-import { APP_VERSION_HEADER } from "~/constants/app";
 
 interface IAppContext {
   appVersion?: string;
@@ -20,35 +19,8 @@ export const Providers = ({ children, appVersion }: PropsWithChildren<ProvidersP
       revalidateOnFocus: true,
       revalidateOnMount: true,
       revalidateOnReconnect: true,
-      fetcher: async (url: string) => {
-        const result = await fetch(url, {
-          headers: {
-            [APP_VERSION_HEADER]: appVersion ?? "",
-          },
-        });
-
-        if (!result.ok) {
-          throw new Error(result.statusText);
-        }
-
-        if (result.headers.has(APP_VERSION_HEADER) && result.headers.get(APP_VERSION_HEADER) !== appVersion) {
-          window.location.reload();
-        }
-
-        const contentType = result.headers.get("content-type") ?? "";
-
-        if (contentType === "application/json") {
-          return result.json();
-        }
-
-        if (contentType.startsWith("image/")) {
-          return result.blob();
-        }
-
-        return result;
-      },
     } satisfies SWRConfiguration;
-  }, [appVersion]);
+  }, []);
 
   return (
     <AppContext.Provider value={{ appVersion }}>

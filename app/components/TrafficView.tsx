@@ -5,13 +5,20 @@ import { useContext } from "react";
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import { AppContext } from "~/utils/context";
+import { useSWRFetcher } from "~/utils/swr";
 
 dayjs.extend(isSameOrAfter);
 
 export default function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
   const { appVersion } = useContext(AppContext);
+  const fetcher = useSWRFetcher();
 
   const { data } = useSWR<WithAppVersion<TrafficResponse>>(`/api/traffic/347`, {
+    fetcher: async (url: string) => {
+      const response = await fetcher(url);
+
+      return (await response.json()) as TrafficResponse;
+    },
     refreshInterval: (data) => {
       if (!data) return 60_000;
 

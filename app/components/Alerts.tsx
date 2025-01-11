@@ -7,12 +7,20 @@ import AccidentIcon from "~/assets/accident.svg?react";
 import RoadIcon from "~/assets/road.svg?react";
 import ConeIcon from "~/assets/cone.svg?react";
 import lodash from "lodash";
+import { useSWRFetcher } from "~/utils/swr";
 
 const { startCase } = lodash;
 
 export const Alerts = () => {
+  const fetcher = useSWRFetcher();
+
   const { data: alertsData, isLoading } = useSWR<Alert[]>("/api/alerts", {
     refreshInterval: 10 * 60 * 1_000,
+    fetcher: async (url: string) => {
+      const response = await fetcher(url);
+
+      return (await response.json()) as Alert[];
+    },
   });
 
   const alerts = alertsData || [];
