@@ -1,11 +1,9 @@
-import { useContext, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import classNames from "classnames";
 import I10Logo from "../assets/i10.svg?react";
 import reactStringReplace from "react-string-replace";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import useSWR from "swr";
-import { AppContext } from "~/utils/context";
-import { APP_VERSION_HEADER } from "~/constants/app";
 
 interface CameraProps {
   id: string;
@@ -14,68 +12,49 @@ interface CameraProps {
 }
 
 export default function Camera({ id, name, note }: CameraProps) {
-  const { appVersion } = useContext(AppContext);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const [hasLoaded, setHasLoaded] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
 
-  useSWR(
-    `/api/camera/${id}`,
-    async (url: string) => {
-      const requestUrl = new URL(url, window.location.href);
+  useSWR(`/api/camera/${id}`, {
+    errorRetryCount: 5,
+    errorRetryInterval: 30_000,
+    keepPreviousData: true,
+    refreshInterval: 15 * 1_000,
+    shouldRetryOnError: true,
+    onSuccess: async (blob: Blob) => {
+      if (!imageRef.current || !blob) return;
 
-      requestUrl.searchParams.set("v", Date.now().toString());
+      setHasError(false);
 
-      const result = await fetch(requestUrl, {
-        headers: {
-          [APP_VERSION_HEADER]: appVersion ?? "",
-        },
-      });
-
-      if (!result.ok) {
-        throw new Error(result.statusText);
+      try {
+        URL.revokeObjectURL(imageRef.current.src);
+      } catch {
+        //
       }
 
-      if (result.headers.get(APP_VERSION_HEADER) !== appVersion) {
-        window.location.reload();
-      }
+      try {
+        imageRef.current.src = URL.createObjectURL(blob);
 
-      return result;
-    },
-    {
-      revalidateOnMount: true,
-      refreshInterval: 15 * 1_000,
-      revalidateOnFocus: true,
-      shouldRetryOnError: true,
-      errorRetryInterval: 30_000,
-      errorRetryCount: 5,
-      keepPreviousData: true,
-      onSuccess: async (response) => {
-        if (!imageRef.current || !response) return;
-
-        setHasError(false);
-
-        try {
-          URL.revokeObjectURL(imageRef.current.src);
-        } catch {
-          //
-        }
-
-        try {
-          const blob = await response.blob();
-
-          imageRef.current.src = URL.createObjectURL(blob);
-
-          setHasLoaded(true);
-        } catch {
-          setHasError(true);
-        }
-      },
-      onError: () => {
+        setHasLoaded(true);
+      } catch {
         setHasError(true);
-      },
-    }
-  );
+      }
+    },
+    onError: () => {
+      try {
+        if (imageRef.current) {
+          URL.revokeObjectURL(imageRef.current.src);
+
+          imageRef.current.removeAttribute("src");
+        }
+      } catch {
+        //
+      }
+
+      setHasError(true);
+    },
+  });
 
   return (
     <div>

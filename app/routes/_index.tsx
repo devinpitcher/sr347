@@ -12,7 +12,6 @@ import ConeIcon from "~/assets/cone.svg?react";
 import classNames from "classnames";
 import lodash from "lodash";
 import useSWR from "swr";
-import { swrFetcher } from "~/utils/swr";
 import Banner from "~/components/Banner";
 import { SEVERITY_MAJOR_CLASSES } from "~/constants/styles";
 import { AppContext } from "~/utils/context";
@@ -58,10 +57,6 @@ export default function Home() {
   }, [appVisible]);
 
   const { data: alertsData, isLoading } = useSWR<Alert[]>("/api/alerts", {
-    fetcher: swrFetcher,
-    revalidateOnFocus: true,
-    refreshWhenHidden: false,
-    revalidateIfStale: false,
     refreshInterval: 10 * 60 * 1000,
   });
 

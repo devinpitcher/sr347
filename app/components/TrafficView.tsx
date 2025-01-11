@@ -1,7 +1,6 @@
 import TrafficSign from "~/components/TrafficSign";
 import { ROUTES } from "~/constants/routes";
 import useSWR from "swr";
-import { swrFetcher } from "~/utils/swr";
 import { useContext } from "react";
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
@@ -13,11 +12,6 @@ export default function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
   const { appVersion } = useContext(AppContext);
 
   const { data } = useSWR<WithAppVersion<TrafficResponse>>(`/api/traffic/347`, {
-    fetcher: swrFetcher,
-    revalidateOnFocus: false,
-    refreshWhenHidden: false,
-    revalidateOnReconnect: true,
-    revalidateOnMount: true,
     refreshInterval: (data) => {
       if (!data) return 60_000;
 
