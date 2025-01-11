@@ -2,23 +2,15 @@ import { MetaFunction } from "@remix-run/cloudflare";
 import { CAMERAS } from "~/constants/cameras";
 import Camera from "~/components/Camera";
 import TrafficView from "~/components/TrafficView";
-import { HeartIcon, ExclamationTriangleIcon, NoSymbolIcon } from "@heroicons/react/20/solid";
-import { Fragment, ReactNode, useContext, useEffect, useRef } from "react";
+import { HeartIcon } from "@heroicons/react/20/solid";
+import { Fragment, useContext, useEffect, useRef } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import SR347Logo from "~/assets/sr347.svg?react";
-import AccidentIcon from "~/assets/accident.svg?react";
-import RoadIcon from "~/assets/road.svg?react";
-import ConeIcon from "~/assets/cone.svg?react";
-import classNames from "classnames";
-import lodash from "lodash";
-import useSWR from "swr";
 import Banner from "~/components/Banner";
-import { SEVERITY_MAJOR_CLASSES } from "~/constants/styles";
 import { AppContext } from "~/utils/context";
 import useTabVisibility from "~/utils/hooks/useTabVisibility";
 import { trackPage } from "~/utils/umami";
-
-const { startCase } = lodash;
+import { Alerts } from "~/components/Alerts";
 
 export const meta: MetaFunction = () => {
   return [
@@ -56,11 +48,6 @@ export default function Home() {
     console.log("See you later!");
   }, [appVisible]);
 
-  const { data: alertsData, isLoading } = useSWR<Alert[]>("/api/alerts", {
-    refreshInterval: 10 * 60 * 1000,
-  });
-
-  const alerts = alertsData || [];
   const sortedCameras = [...CAMERAS];
 
   if (!isAfternoon) {
@@ -94,112 +81,7 @@ export default function Home() {
         </section>
 
         <section className="w-full lg:order-1">
-          <section id="alerts" className="mb-6">
-            <h2 className="flex items-center text-xl font-semibold leading-6 text-slate-900 dark:text-slate-100">
-              <span>Traffic Alerts</span>&nbsp;<span className="ml-1 rounded bg-red-700 px-2 py-0.5 text-sm text-white">Beta</span>
-            </h2>
-
-            <p className="mb-4 mt-1 text-xs text-slate-500">Alerts are updated every 10 minutes</p>
-
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              {isLoading && (
-                <div className="rounded-md bg-slate-100 p-4 text-slate-800 ring-1 ring-inset ring-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-800">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <RoadIcon className="size-6" aria-hidden="true" />
-                    </div>
-
-                    <div className="ml-3">
-                      <p className="text-sm">
-                        <strong className={"mb-1 inline-block text-base"}>Loading current traffic alerts...</strong>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {!isLoading && alerts && alerts.length === 0 && (
-                <div className="rounded-md bg-green-100 p-4 text-green-800 ring-1 ring-inset ring-green-200 dark:bg-green-900 dark:text-green-200 dark:ring-green-800">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <RoadIcon className="size-6" aria-hidden="true" />
-                    </div>
-
-                    <div className="ml-3">
-                      <p className="text-sm">
-                        <strong className={"mb-1 inline-block text-base"}>All clear!</strong>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {alerts === null && (
-                <div className="rounded-md bg-slate-100 p-4 text-slate-700 ring-1 ring-inset ring-slate-200 dark:bg-slate-800 dark:text-white dark:ring-slate-700">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <ExclamationTriangleIcon className="mt-1 size-5" aria-hidden="true" />
-                    </div>
-
-                    <div className="ml-3">
-                      <p className="text-base">Alerts are unavailable right now</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {alerts &&
-                alerts.map((alert) => {
-                  let icon: ReactNode;
-                  let severity: string;
-
-                  switch (alert.Severity) {
-                    case "major":
-                      severity = SEVERITY_MAJOR_CLASSES;
-                      break;
-                    case "minor":
-                    default:
-                      severity = "ring-1 ring-inset ring-slate-200 dark:ring-slate-700 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-white";
-                  }
-
-                  switch (alert.EventType) {
-                    case "accidentsAndIncidents":
-                      icon = <AccidentIcon className="size-6" aria-hidden="true" />;
-                      severity = SEVERITY_MAJOR_CLASSES;
-                      break;
-                    case "closures":
-                      icon = <NoSymbolIcon className="size-5" aria-hidden="true" />;
-                      break;
-                    case "roadwork":
-                      icon = <ConeIcon className="mt-0.5 size-5" aria-hidden="true" />;
-                      break;
-                    default:
-                      icon = <ExclamationTriangleIcon className="size-5" aria-hidden="true" />;
-                  }
-
-                  return (
-                    <div className={classNames("rounded-md p-4", severity)} key={alert.ID}>
-                      <div className="flex">
-                        <div className="flex-shrink-0">{icon}</div>
-
-                        <div className="ml-3">
-                          <p className="text-sm">
-                            <strong className={"mb-1 inline-block text-base"}>{startCase(alert.EventType)}</strong>
-                            <br />
-                            {alert.Description}
-                          </p>
-                          <p className={"mt-2 text-sm font-bold"}>
-                            <a href={`https://az511.com/Event/Incidents/${alert.ID}`} target={"_blank"} rel="noreferrer" className={"underline"}>
-                              More info
-                            </a>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-          </section>
+          <Alerts />
 
           <section id="live-cameras">
             <div className="border-b border-gray-200 pb-5 dark:border-slate-700">
