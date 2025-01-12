@@ -117,7 +117,7 @@ export default function Home() {
       </main>
 
       <section className="my-8">
-        <div className="relative bg-slate-950">
+        <div className="relative bg-slate-100 dark:bg-slate-950">
           <div className="relative h-80 overflow-hidden bg-slate-600 md:absolute md:left-0 md:h-full md:w-1/3 lg:w-1/2">
             <img src="https://cdn.sr347.com/347-accident.jpg" className="size-full object-cover mix-blend-overlay grayscale" />
           </div>
@@ -126,9 +126,9 @@ export default function Home() {
             <div className="pl-6 pr-6 md:ml-auto md:w-2/3 md:pl-16 lg:w-1/2 lg:pl-24 lg:pr-0 xl:pl-32">
               <h2 className="text-base/7 font-semibold text-slate-400">Demand Immediate Action!</h2>
 
-              <p className="mt-3 text-4xl font-semibold tracking-tight text-white sm:text-5xl">✊ Join the Fight for Safer Roads</p>
+              <p className="mt-3 text-4xl font-semibold tracking-tight text-slate-800 sm:text-5xl dark:text-white">✊ Join the Fight for Safer Roads</p>
 
-              <p className="mt-6 text-lg/8 text-gray-300">
+              <p className="mt-6 text-lg/8 text-slate-700 dark:text-gray-300">
                 Tell your Arizona state officials, ADOT board members, and Pinal County supervisors <span className="font-bold italic">enough is enough!</span>{" "}
                 Help us demand action and funding to make this road safer for everyone: send them an email now and make your voice heard.
               </p>
@@ -147,7 +147,7 @@ export default function Home() {
                   href="https://347facts.com?ref=sr347.com"
                   data-umami-event="outbound-link-click"
                   data-umami-event-url="https://347facts.com?ref=sr347.com"
-                  className="inline-flex rounded-md bg-white/10 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  className="inline-flex rounded-md bg-slate-800/10 px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-800/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white dark:bg-slate-800/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
                 >
                   Visit 347Facts.com
                 </a>
