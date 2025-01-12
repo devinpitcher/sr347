@@ -116,6 +116,43 @@ export default function Home() {
         </section>
       </main>
 
+      <section className="my-8">
+        <div className="relative bg-slate-950">
+          <div className="relative h-80 overflow-hidden bg-slate-600 md:absolute md:left-0 md:h-full md:w-1/3 lg:w-1/2">
+            <img src="https://cdn.sr347.com/347-accident.jpg" className="size-full object-cover mix-blend-overlay grayscale" />
+          </div>
+
+          <div className="sm:py-18 relative mx-auto max-w-7xl py-12 lg:px-8 lg:py-40">
+            <div className="pl-6 pr-6 md:ml-auto md:w-2/3 md:pl-16 lg:w-1/2 lg:pl-24 lg:pr-0 xl:pl-32">
+              <h2 className="text-base/7 font-semibold text-slate-400">Demand Immediate Action!</h2>
+
+              <p className="mt-3 text-4xl font-semibold tracking-tight text-white sm:text-5xl">✊ Join the Fight for Safer Roads</p>
+
+              <p className="mt-6 text-lg/8 text-gray-300">
+                Tell your Arizona state officials, ADOT board members, and Pinal County supervisors <span className="font-bold italic">enough is enough!</span>{" "}
+                Help us demand action and funding to make this road safer for everyone: send them an email now and make your voice heard.
+              </p>
+
+              <div className="mt-8 space-x-4">
+                <a
+                  href="https://347facts.com/contact?ref=sr347.com"
+                  className="rounded-md bg-red-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
+                >
+                  Send an email now!
+                </a>
+
+                <a
+                  href="https://347facts.com?ref=sr347.com"
+                  className="inline-flex rounded-md bg-white/10 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                >
+                  Visit 347Facts.com
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <footer className="relative isolate mt-4 overflow-hidden bg-slate-900 sm:mt-6 lg:mt-12">
         <div className="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
           <div className="mx-auto max-w-4xl text-center">
