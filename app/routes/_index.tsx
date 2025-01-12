@@ -69,7 +69,8 @@ export default function Home() {
           <div className="lg:w-72 xl:w-80">
             <div className="border-b border-gray-200 pb-5 dark:border-slate-700">
               <h2 className="flex items-center text-xl font-semibold leading-6 text-slate-900 dark:text-slate-100">
-                <span className="mr-1 animate-pulse rounded bg-red-700 px-2 py-0.5 text-sm text-white">Live</span>&nbsp;<span>Traffic</span>
+                <span className="mr-1 animate-pulse rounded bg-red-700 px-2 py-0.5 text-sm text-white">Live</span>&nbsp;
+                <span>Traffic</span>
               </h2>
               <p className="mt-1 text-xs text-slate-500">Traffic updates every 5 minutes</p>
             </div>
@@ -86,7 +87,8 @@ export default function Home() {
           <section id="live-cameras">
             <div className="border-b border-gray-200 pb-5 dark:border-slate-700">
               <h2 className="flex items-center text-xl font-semibold leading-6 text-slate-900 dark:text-slate-100">
-                <span className="mr-1 animate-pulse rounded bg-red-700 px-2 py-0.5 text-sm text-white">Live</span>&nbsp;<span>Cameras</span>
+                <span className="mr-1 animate-pulse rounded bg-red-700 px-2 py-0.5 text-sm text-white">Live</span>&nbsp;
+                <span>Cameras</span>
               </h2>
               <p className="mt-1 text-xs text-slate-500">Cameras update every 15 seconds</p>
             </div>
@@ -116,7 +118,7 @@ export default function Home() {
         </section>
       </main>
 
-      <section className="my-8">
+      <section>
         <div className="relative bg-slate-100 dark:bg-slate-950">
           <div className="relative h-80 overflow-hidden bg-slate-600 md:absolute md:left-0 md:h-full md:w-1/3 lg:w-1/2">
             <img src="https://cdn.sr347.com/347-accident.jpg" className="size-full object-cover mix-blend-overlay grayscale" />
@@ -157,7 +159,14 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="relative isolate mt-4 overflow-hidden bg-slate-900 sm:mt-6 lg:mt-12">
+      <section className="mx-auto max-w-4xl text-balance px-4 py-8 text-center text-sm italic text-slate-400 md:text-base">
+        <p>
+          This website is not affiliated with or endorsed by the City of Maricopa or the Arizona Department of Transportation. All content is for informational
+          purposes only and does not represent the City's or ADOT's official views.
+        </p>
+      </section>
+
+      <footer className="relative isolate overflow-hidden bg-slate-900">
         <div className="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="font-bold tracking-tight text-white sm:text-4xl">👋 Hi there! Thanks for stopping by.</h2>
