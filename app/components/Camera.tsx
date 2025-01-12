@@ -4,7 +4,7 @@ import I10Logo from "../assets/i10.svg?react";
 import reactStringReplace from "react-string-replace";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import useSWR from "swr";
-import { useSWRFetcher } from "~/utils/swr";
+import { SWRFetcherError, useSWRFetcher } from "~/utils/swr";
 
 interface CameraProps {
   id: string;
@@ -16,6 +16,7 @@ export default function Camera({ id, name, note }: CameraProps) {
   const imageRef = useRef<HTMLImageElement | null>(null);
   const [hasLoaded, setHasLoaded] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
+  const [lastSeen, setLastSeen] = useState<string>("");
   const fetcher = useSWRFetcher();
 
   useSWR(`/api/camera/${id}`, {
@@ -32,8 +33,6 @@ export default function Camera({ id, name, note }: CameraProps) {
     onSuccess: async (blob: Blob) => {
       if (!imageRef.current || !blob) return;
 
-      setHasError(false);
-
       try {
         URL.revokeObjectURL(imageRef.current.src);
       } catch {
@@ -44,11 +43,14 @@ export default function Camera({ id, name, note }: CameraProps) {
         imageRef.current.src = URL.createObjectURL(blob);
 
         setHasLoaded(true);
+        setHasError(false);
       } catch {
         setHasError(true);
       }
     },
-    onError: () => {
+    onError: async (err) => {
+      setHasError(true);
+
       try {
         if (imageRef.current) {
           URL.revokeObjectURL(imageRef.current.src);
@@ -59,7 +61,15 @@ export default function Camera({ id, name, note }: CameraProps) {
         //
       }
 
-      setHasError(true);
+      if (err instanceof SWRFetcherError) {
+        try {
+          const errData = await err.response.json<CameraErrorResponse>();
+
+          setLastSeen(errData.lastSeen);
+        } catch {
+          //
+        }
+      }
     },
   });
 
@@ -75,6 +85,11 @@ export default function Camera({ id, name, note }: CameraProps) {
             <div className="px-8">
               <h4 className="text-xl font-semibold">Camera Offline</h4>
               <div className="text-xs">We could not load the camera from ADOT</div>
+              {lastSeen && (
+                <div className="mt-4 text-xs">
+                  <strong>Last seen:</strong> {lastSeen}
+                </div>
+              )}
               {note ? (
                 <div className="mt-4 rounded-md border border-slate-400 p-4 text-xs">
                   <InformationCircleIcon width={20} className="-mt-1 inline" /> {note}

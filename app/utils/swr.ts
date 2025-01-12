@@ -14,7 +14,7 @@ export const useSWRFetcher = () => {
       });
 
       if (!result.ok) {
-        throw new Error(result.statusText);
+        throw new SWRFetcherError(result.statusText, result);
       }
 
       if (result.headers.has(APP_VERSION_HEADER) && result.headers.get(APP_VERSION_HEADER) !== appVersion) {
@@ -26,3 +26,13 @@ export const useSWRFetcher = () => {
     [appVersion]
   );
 };
+
+export class SWRFetcherError extends Error {
+  public response: Response;
+
+  constructor(message: string, response: Response) {
+    super(message);
+
+    this.response = response;
+  }
+}

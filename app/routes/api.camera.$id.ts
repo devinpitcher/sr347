@@ -1,10 +1,20 @@
 import { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { CAMERAS } from "~/constants/cameras";
 import { APP_VERSION_HEADER } from "~/constants/app";
+import { Redis } from "@upstash/redis/cloudflare";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 export const loader = async ({ params, request, context }: LoaderFunctionArgs) => {
   const appVersion = context.cloudflare.env.CF_PAGES_COMMIT_SHA;
   const clientAppVersion = request.headers.get(APP_VERSION_HEADER);
+
+  const redis = new Redis({
+    url: context.cloudflare.env.UPSTASH_REDIS_REST_URL,
+    token: context.cloudflare.env.UPSTASH_REDIS_REST_TOKEN,
+  });
 
   const camera = CAMERAS.find(({ id }) => id === params.id!);
 
@@ -27,19 +37,34 @@ export const loader = async ({ params, request, context }: LoaderFunctionArgs) =
     );
   }
 
-  const url = `http://vods.az511.com/adot_${params.id}.jpg?v=${new Date().getTime()}`;
-
+  const now = Date.now();
+  const cacheKey = `camera-${params.id}-last-seen`;
+  const url = `http://vods.az511.com/adot_${params.id}.jpg?v=${now}`;
   const response = await fetch(url);
 
   if (!response.ok) {
-    return new Response(null, {
-      status: 503,
-      statusText: "Camera offline",
-      headers: {
-        [APP_VERSION_HEADER]: appVersion ?? "",
+    const fallback = now - 1_000 * 15;
+    const lastSeen =
+      (await redis.set(cacheKey, fallback, {
+        nx: true,
+        get: true,
+      })) ?? fallback;
+
+    return Response.json(
+      {
+        lastSeen: dayjs(lastSeen).fromNow(),
       },
-    });
+      {
+        status: 503,
+        statusText: "Camera offline",
+        headers: {
+          [APP_VERSION_HEADER]: appVersion ?? "",
+        },
+      }
+    );
   }
+
+  context.cloudflare.ctx.waitUntil(redis.del(cacheKey));
 
   return new Response(response.body, {
     headers: {

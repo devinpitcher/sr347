@@ -97,6 +97,10 @@ declare global {
     StartTime: string;
     EndTime: string;
   }
+
+  export interface CameraErrorResponse {
+    lastSeen: string;
+  }
 }
 
 export {};
