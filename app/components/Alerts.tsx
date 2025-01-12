@@ -28,7 +28,7 @@ export const Alerts = () => {
   return (
     <section id="alerts" className="mb-6">
       <h2 className="flex items-center text-xl font-semibold leading-6 text-slate-900 dark:text-slate-100">
-        <span>Traffic Alerts</span>&nbsp;<span className="ml-1 rounded bg-red-700 px-2 py-0.5 text-sm text-white">Beta</span>
+        <span>Traffic Alerts</span>
       </h2>
 
       <p className="mb-4 mt-1 text-xs text-slate-500">Alerts are updated every 10 minutes</p>
