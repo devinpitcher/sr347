@@ -59,7 +59,7 @@ export const Alerts = () => {
 
               <div className="ml-3">
                 <p className="text-sm">
-                  <strong className={"inline-block text-base"}>All clear!</strong>
+                  <strong className={"inline-block text-base"}>No reported incidents. Drive safe!</strong>
                 </p>
               </div>
             </div>
