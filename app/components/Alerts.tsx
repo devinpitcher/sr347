@@ -109,6 +109,8 @@ export const Alerts = () => {
                 icon = <ExclamationTriangleIcon className="size-5" aria-hidden="true" />;
             }
 
+            const href = `https://az511.com/Event/Incidents/${alert.ID}`;
+
             return (
               <div className={classNames("rounded-md p-4", severity)} key={alert.ID}>
                 <div className="flex">
@@ -121,7 +123,14 @@ export const Alerts = () => {
                       {alert.Description}
                     </p>
                     <p className={"mt-2 text-sm font-bold"}>
-                      <a href={`https://az511.com/Event/Incidents/${alert.ID}`} target={"_blank"} rel="noreferrer" className={"underline"}>
+                      <a
+                        href={href}
+                        target={"_blank"}
+                        rel="noreferrer"
+                        className={"underline"}
+                        data-umami-event="outbound-link-click"
+                        data-umami-event-url={href}
+                      >
                         More info
                       </a>
                     </p>

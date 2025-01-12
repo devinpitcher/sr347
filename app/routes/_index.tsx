@@ -136,6 +136,8 @@ export default function Home() {
               <div className="mt-8 space-x-4">
                 <a
                   href="https://347facts.com/contact?ref=sr347.com"
+                  data-umami-event="outbound-link-click"
+                  data-umami-event-url="https://347facts.com/contact?ref=sr347.com"
                   className="rounded-md bg-red-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
                 >
                   Send an email now!
@@ -143,6 +145,8 @@ export default function Home() {
 
                 <a
                   href="https://347facts.com?ref=sr347.com"
+                  data-umami-event="outbound-link-click"
+                  data-umami-event-url="https://347facts.com?ref=sr347.com"
                   className="inline-flex rounded-md bg-white/10 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                 >
                   Visit 347Facts.com
@@ -196,7 +200,15 @@ export default function Home() {
                           href: "https://cash.app/$devinpitcher",
                         },
                       ].map((item) => (
-                        <a key={item.name} href={item.href} className="block p-2 hover:text-indigo-600" target="_blank" rel="noreferrer">
+                        <a
+                          key={item.name}
+                          href={item.href}
+                          className="block p-2 hover:text-indigo-600"
+                          data-umami-event="outbound-link-click"
+                          data-umami-event-url={item.href}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
                           {item.name}
                         </a>
                       ))}
