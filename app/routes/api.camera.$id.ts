@@ -4,6 +4,7 @@ import { APP_VERSION_HEADER } from "~/constants/app";
 import { Redis } from "@upstash/redis/cloudflare";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { chance } from "~/utils/misc";
 
 dayjs.extend(relativeTime);
 
@@ -64,7 +65,9 @@ export const loader = async ({ params, request, context }: LoaderFunctionArgs) =
     );
   }
 
-  context.cloudflare.ctx.waitUntil(redis.del(cacheKey));
+  if (chance(10)) {
+    context.cloudflare.ctx.waitUntil(redis.del(cacheKey));
+  }
 
   return new Response(response.body, {
     headers: {
