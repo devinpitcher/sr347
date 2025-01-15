@@ -51,9 +51,25 @@ export const loader = async ({ params, request, context }: LoaderFunctionArgs) =
         get: true,
       })) ?? fallback;
 
+    const lastSeenHuman = dayjs(lastSeen).fromNow();
+
+    if (lastSeen === fallback) {
+      const notify = fetch("https://ntfy.sh", {
+        method: "POST",
+        body: JSON.stringify({
+          topic: "wBgvGGJjMzree8xg",
+          message: `It was last seen ${lastSeenHuman}\nStatus Code: ${response.status}\nStatus Text: ${response.statusText}`,
+          title: `🔴 ${camera.name} Camera Offline`,
+          tags: ["sr347"],
+        }),
+      });
+
+      context.cloudflare.ctx.waitUntil(notify);
+    }
+
     return Response.json(
       {
-        lastSeen: dayjs(lastSeen).fromNow(),
+        lastSeen: lastSeenHuman,
       },
       {
         status: 503,
@@ -66,7 +82,25 @@ export const loader = async ({ params, request, context }: LoaderFunctionArgs) =
   }
 
   if (chance(10)) {
-    context.cloudflare.ctx.waitUntil(redis.del(cacheKey));
+    const cleanup = async () => {
+      const firstOffline = await redis.getdel<number>(cacheKey);
+
+      if (!firstOffline) return;
+
+      const duration = dayjs().to(dayjs(firstOffline));
+
+      return fetch("https://ntfy.sh", {
+        method: "POST",
+        body: JSON.stringify({
+          topic: "wBgvGGJjMzree8xg",
+          message: `It first went offline ${duration}`,
+          title: `🟢 ${camera.name} Camera Back Online`,
+          tags: ["sr347"],
+        }),
+      });
+    };
+
+    context.cloudflare.ctx.waitUntil(cleanup());
   }
 
   return new Response(response.body, {
