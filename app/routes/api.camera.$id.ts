@@ -8,6 +8,8 @@ import { chance } from "~/utils/misc";
 
 dayjs.extend(relativeTime);
 
+const ALERT_THRESHOLD = 1_000 * 60 * 5;
+
 export const loader = async ({ params, request, context }: LoaderFunctionArgs) => {
   const appVersion = context.cloudflare.env.CF_PAGES_COMMIT_SHA;
   const clientAppVersion = request.headers.get(APP_VERSION_HEADER);
@@ -44,27 +46,34 @@ export const loader = async ({ params, request, context }: LoaderFunctionArgs) =
   const response = await fetch(url);
 
   if (!response.ok) {
-    const fallback = now - 1_000 * 15;
-    const lastSeen =
-      (await redis.set(cacheKey, fallback, {
+    const [lastSeenVal, alreadyAlerted] = await redis
+      .pipeline()
+      .set(cacheKey, now, {
         nx: true,
         get: true,
-      })) ?? fallback;
+      })
+      .get(`${cacheKey}-alerted`)
+      .exec<[number | null, true | null]>();
 
+    const lastSeen = lastSeenVal ?? now;
     const lastSeenHuman = dayjs(lastSeen).fromNow();
 
-    if (lastSeen === fallback) {
-      const notify = fetch("https://ntfy.sh", {
-        method: "POST",
-        body: JSON.stringify({
-          topic: "wBgvGGJjMzree8xg",
-          message: `It was last seen ${lastSeenHuman}\nStatus Code: ${response.status}\nStatus Text: ${response.statusText}`,
-          title: `🔴 ${camera.name} Camera Offline`,
-          tags: ["sr347"],
-        }),
-      });
+    if (!alreadyAlerted && Date.now() - lastSeen >= ALERT_THRESHOLD) {
+      const notify = async () => {
+        await redis.set(`${cacheKey}-alerted`, true);
 
-      context.cloudflare.ctx.waitUntil(notify);
+        return fetch("https://ntfy.sh", {
+          method: "POST",
+          body: JSON.stringify({
+            topic: "wBgvGGJjMzree8xg",
+            message: `It was last seen ${lastSeenHuman}\nStatus Code: ${response.status}\nStatus Text: ${response.statusText}`,
+            title: `🔴 ${camera.name} Camera Offline`,
+            tags: ["sr347"],
+          }),
+        });
+      };
+
+      context.cloudflare.ctx.waitUntil(notify());
     }
 
     return Response.json(
@@ -83,17 +92,15 @@ export const loader = async ({ params, request, context }: LoaderFunctionArgs) =
 
   if (chance(10)) {
     const cleanup = async () => {
-      const firstOffline = await redis.getdel<number>(cacheKey);
+      const [firstOffline, alerted] = await redis.pipeline().getdel<number>(cacheKey).getdel<true>(`${cacheKey}-alerted`).exec();
 
-      if (!firstOffline) return;
-
-      const duration = dayjs().to(dayjs(firstOffline));
+      if (!firstOffline || !alerted || Date.now() - firstOffline < ALERT_THRESHOLD) return;
 
       return fetch("https://ntfy.sh", {
         method: "POST",
         body: JSON.stringify({
           topic: "wBgvGGJjMzree8xg",
-          message: `It first went offline ${duration}`,
+          message: `It first went offline ${dayjs().to(dayjs(firstOffline))}`,
           title: `🟢 ${camera.name} Camera Back Online`,
           tags: ["sr347"],
         }),
