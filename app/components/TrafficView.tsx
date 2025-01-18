@@ -72,9 +72,9 @@ export default function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
         />
 
         {hasBackup && (
-          <div className="order-3 rounded-md border-2 border-red-950 bg-gradient-to-t from-black to-red-950 p-4">
+          <div className="order-3 rounded-md border-2 border-red-200 bg-gradient-to-t from-white to-red-200 p-4 dark:border-red-950 dark:from-black dark:to-red-950">
             <div className="flex">
-              <div className="text-white">
+              <div className="text-red-950 dark:text-white">
                 <h3 className="inline-flex items-center gap-2 text-lg font-bold">
                   <span className="animate-h-shake text-3xl">🤬</span> Tired of sitting in traffic?
                 </h3>

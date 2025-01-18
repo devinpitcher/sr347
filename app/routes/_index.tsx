@@ -151,7 +151,7 @@ export default function Home() {
                   data-umami-event="347facts-click"
                   data-umami-event-url="https://347facts.com?ref=sr347.com"
                   data-umami-event-position="footer"
-                  className="inline-flex rounded-md bg-slate-800/10 px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-800/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white dark:bg-slate-800/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+                  className="inline-flex rounded-md bg-slate-800/10 px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-800/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
                 >
                   Visit 347Facts.com
                 </a>
