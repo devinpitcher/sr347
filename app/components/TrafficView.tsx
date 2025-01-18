@@ -59,15 +59,6 @@ export default function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
           className={isAfternoon ? "order-1" : "order-2"}
         />
       </div>
-
-      <div className="mb-6">
-        <div className="mb-4 rounded-md bg-slate-400/10 p-4 text-center text-sm text-slate-500 ring-1 ring-inset ring-slate-400/20">
-          <p className="mb-2">
-            <strong>✨ New feature coming soon! ✨</strong>
-          </p>
-          <p>Soon you&apos;ll be able to choose a custom route to get a better traffic estimate to and from your neighborhood.</p>
-        </div>
-      </div>
     </div>
   );
 }
