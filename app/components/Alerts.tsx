@@ -123,14 +123,7 @@ export const Alerts = () => {
                       {alert.Description}
                     </p>
                     <p className={"mt-2 text-sm font-bold"}>
-                      <a
-                        href={href}
-                        target={"_blank"}
-                        rel="noreferrer"
-                        className={"underline"}
-                        data-umami-event="outbound-link-click"
-                        data-umami-event-url={href}
-                      >
+                      <a href={href} target={"_blank"} rel="noreferrer" className={"underline"} data-umami-event="alert-click" data-umami-event-url={href}>
                         More info
                       </a>
                     </p>

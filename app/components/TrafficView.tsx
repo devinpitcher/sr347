@@ -90,8 +90,9 @@ export default function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
                 <div className="mt-4 flex flex-col items-center gap-4">
                   <a
                     href="https://347facts.com/contact?ref=sr347.com"
-                    data-umami-event="outbound-link-click"
+                    data-umami-event="347facts-click"
                     data-umami-event-url="https://347facts.com/contact?ref=sr347.com"
+                    data-umami-event-position="traffic"
                     className="w-full animate-pulse rounded-md bg-red-700 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
                   >
                     Send an email now!
@@ -99,8 +100,9 @@ export default function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
 
                   <a
                     href="https://347facts.com?ref=sr347.com"
-                    data-umami-event="outbound-link-click"
+                    data-umami-event="347facts-click"
                     data-umami-event-url="https://347facts.com?ref=sr347.com"
+                    data-umami-event-position="traffic"
                     className="w-full rounded-md bg-slate-800/10 px-3.5 py-2.5 text-center text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-800/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white dark:bg-white/10 dark:text-white/70 dark:hover:bg-white/20"
                   >
                     Visit 347Facts.com
