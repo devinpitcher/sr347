@@ -5,6 +5,7 @@ import classNames from "classnames";
 import { useEffect, useMemo, useRef } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { determineTrafficStatus } from "~/utils/traffic";
 
 dayjs.extend(relativeTime);
 
@@ -17,21 +18,9 @@ interface TrafficSignProps {
   lastUpdated?: string;
 }
 
-type TrafficStatus = "unknown" | "clear" | "delayed" | "slow";
-
 export default function TrafficSign({ name, description, durationInTraffic = 0, duration = 0, lastUpdated, className }: TrafficSignProps) {
   const lastUpdatedRef = useRef<HTMLSpanElement>(null);
-
-  const status = useMemo<TrafficStatus>(() => {
-    if (!duration || !durationInTraffic) return "unknown";
-
-    const difference = durationInTraffic - duration;
-
-    if (difference >= 60 * 10) return "slow";
-    if (difference >= 60 * 2) return "delayed";
-
-    return "clear";
-  }, [duration, durationInTraffic]);
+  const status = useMemo(() => determineTrafficStatus(duration, durationInTraffic), [duration, durationInTraffic]);
 
   useEffect(() => {
     if (!lastUpdatedRef.current) return;
