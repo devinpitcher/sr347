@@ -117,6 +117,7 @@ export const loader = async ({ params, request, context }: LoaderFunctionArgs) =
       "content-type": response.headers.get("content-type")!,
       "content-length": response.headers.get("content-length")!,
       "cache-control": "private, max-age=15",
+      Vary: APP_VERSION_HEADER,
     },
   });
 };
