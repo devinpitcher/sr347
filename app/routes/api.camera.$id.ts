@@ -8,7 +8,7 @@ import { chance } from "~/utils/misc";
 
 dayjs.extend(relativeTime);
 
-const ALERT_THRESHOLD = 1_000 * 60 * 5;
+const ALERT_THRESHOLD = 1_000 * 60 * 60; // 1 hour
 
 export const loader = async ({ params, request, context }: LoaderFunctionArgs) => {
   const appVersion = context.cloudflare.env.CF_PAGES_COMMIT_SHA;
