@@ -8,6 +8,7 @@ import { AppContext } from "~/utils/context";
 import { useSWRFetcher } from "~/utils/swr";
 import { determineTrafficStatus } from "~/utils/traffic";
 import { ExclamationTriangleIcon } from "@heroicons/react/20/solid";
+import { ClickTap } from "~/components/utils";
 
 dayjs.extend(isSameOrAfter);
 
@@ -95,8 +96,7 @@ export default function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
                     data-umami-event-position="traffic"
                     className="w-full animate-pulse rounded-md bg-red-700 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
                   >
-                    <span className={"hidden lg:inline"}>Click</span>
-                    <span className={"lg:hidden"}>Tap</span> here to send an email now!
+                    <ClickTap /> here to send an email now!
                   </a>
 
                   <a
@@ -106,8 +106,7 @@ export default function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
                     data-umami-event-position="traffic"
                     className="w-full rounded-md bg-slate-800/10 px-3.5 py-2.5 text-center text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-800/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white dark:bg-white/10 dark:text-white/70 dark:hover:bg-white/20"
                   >
-                    <span className={"hidden lg:inline"}>Click</span>
-                    <span className={"lg:hidden"}>Tap</span> here to visit 347Facts.com
+                    <ClickTap /> here to visit 347Facts.com
                   </a>
                 </div>
               </div>

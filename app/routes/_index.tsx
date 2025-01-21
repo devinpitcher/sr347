@@ -11,6 +11,7 @@ import { AppContext } from "~/utils/context";
 import useTabVisibility from "~/utils/hooks/useTabVisibility";
 import { trackPage } from "~/utils/umami";
 import { Alerts } from "~/components/Alerts";
+import { ClickTap } from "~/components/utils";
 
 export const meta: MetaFunction = () => {
   return [
@@ -135,7 +136,7 @@ export default function Home() {
                 Help us demand action and funding to make this road safer for everyone: send them an email now and make your voice heard.
               </p>
 
-              <div className="mt-8 space-x-4">
+              <div className="mt-8 flex flex-wrap gap-4">
                 <a
                   href="https://347facts.com/contact?ref=sr347.com"
                   data-umami-event="347facts-click"
@@ -143,8 +144,7 @@ export default function Home() {
                   data-umami-event-position="footer"
                   className="rounded-md bg-red-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
                 >
-                  <span className={"hidden lg:inline"}>Click</span>
-                  <span className={"lg:hidden"}>Tap</span> here to send an email now!
+                  <ClickTap /> here to send an email now!
                 </a>
 
                 <a
@@ -152,10 +152,9 @@ export default function Home() {
                   data-umami-event="347facts-click"
                   data-umami-event-url="https://347facts.com?ref=sr347.com"
                   data-umami-event-position="footer"
-                  className="inline-flex rounded-md bg-slate-800/10 px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-800/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+                  className="rounded-md bg-slate-800/10 px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-800/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
                 >
-                  <span className={"hidden lg:inline"}>Click</span>
-                  <span className={"lg:hidden"}>Tap</span> here to visit 347Facts.com
+                  <ClickTap /> here to visit 347Facts.com
                 </a>
               </div>
             </div>
