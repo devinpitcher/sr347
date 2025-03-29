@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import { dayjs } from "~/utils/dayjs";
 
 export type TrafficStatus = "unknown" | "clear" | "delayed" | "slow";
 
@@ -14,7 +14,7 @@ export function determineTrafficStatus(duration?: number, durationInTraffic?: nu
 }
 
 export function determineIsPeakTraffic() {
-  const currentHour = new Date().getHours();
+  const currentHour = dayjs().hour();
   const isMorning = currentHour >= 5 && currentHour < 10;
   const isAfternoon = currentHour >= 15 && currentHour < 20;
 
@@ -22,7 +22,7 @@ export function determineIsPeakTraffic() {
 }
 
 export function determineIsOffHours() {
-  const currentHour = new Date().getHours();
+  const currentHour = dayjs().hour();
 
   return currentHour >= 0 && currentHour < 5;
 }

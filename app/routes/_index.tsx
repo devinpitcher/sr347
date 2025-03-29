@@ -12,6 +12,7 @@ import useTabVisibility from "~/utils/hooks/useTabVisibility";
 import { trackPage } from "~/utils/umami";
 import { Alerts } from "~/components/Alerts";
 import { ClickTap } from "~/components/utils";
+import { dayjs } from "~/utils/dayjs";
 
 export const meta: MetaFunction = () => {
   return [
@@ -25,7 +26,7 @@ export const meta: MetaFunction = () => {
 
 export default function Home() {
   const { appVersion } = useContext(AppContext);
-  const isAfternoon = new Date().getHours() >= 12;
+  const isAfternoon = dayjs().hour() >= 12;
   const appVisible = useTabVisibility();
   const lastVisibleRef = useRef<number>();
 
