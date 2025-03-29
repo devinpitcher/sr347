@@ -7,4 +7,8 @@ dayjs.extend(timezone);
 
 dayjs.tz.setDefault("America/Phoenix");
 
-export { dayjs };
+function getDate(): dayjs.Dayjs {
+  return dayjs().tz();
+}
+
+export { dayjs, getDate };
