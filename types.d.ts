@@ -40,6 +40,7 @@ declare global {
   export type TrafficResponse = {
     route: RouteResponse;
     lastUpdated: string;
+    nextUpdate: string;
   };
 
   export type WithAppVersion<T extends object> = T & {

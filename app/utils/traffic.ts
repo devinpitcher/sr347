@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export type TrafficStatus = "unknown" | "clear" | "delayed" | "slow";
 
 export function determineTrafficStatus(duration?: number, durationInTraffic?: number): TrafficStatus {
@@ -9,4 +11,36 @@ export function determineTrafficStatus(duration?: number, durationInTraffic?: nu
   if (difference >= 60 * 2) return "delayed";
 
   return "clear";
+}
+
+export function determineIsPeakTraffic() {
+  const currentHour = new Date().getHours();
+  const isMorning = currentHour >= 5 && currentHour < 10;
+  const isAfternoon = currentHour >= 15 && currentHour < 20;
+
+  return isMorning || isAfternoon;
+}
+
+export function determineIsOffHours() {
+  const currentHour = new Date().getHours();
+
+  return currentHour >= 0 && currentHour < 5;
+}
+
+export function determineNextTrafficUpdate(route: RouteResponse): dayjs.Dayjs {
+  if (determineIsOffHours()) {
+    return dayjs().add(15, "minutes");
+  }
+
+  const hasDelay = [route.outbound, route.inbound].some((segment) => {
+    const status = determineTrafficStatus(segment.duration, segment.duration_in_traffic);
+
+    return status === "delayed" || status === "slow";
+  });
+
+  if (hasDelay || determineIsPeakTraffic()) {
+    return dayjs().add(5, "minutes");
+  }
+
+  return dayjs().add(10, "minutes");
 }

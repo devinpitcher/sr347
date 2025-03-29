@@ -3,12 +3,14 @@ import { ROUTES } from "~/constants/routes";
 import { type DistanceMatrixResponseData } from "@googlemaps/google-maps-services-js";
 import { Redis } from "@upstash/redis/cloudflare";
 import dayjs from "dayjs";
+import { determineNextTrafficUpdate } from "~/utils/traffic";
 
 export const loader = async ({ context, params }: LoaderFunctionArgs) => {
   const {
     ctx: { waitUntil },
     env: { UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL, CF_PAGES_COMMIT_SHA, MAPS_API_KEY },
   } = context.cloudflare;
+
   const matchedRoute = ROUTES.find(({ key }) => key.toLowerCase() === params.route!.toLowerCase());
 
   if (!matchedRoute) {
@@ -43,9 +45,9 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
       } satisfies WithAppVersion<TrafficResponse>);
     }
 
-    const expires = dayjs(cachedValue.lastUpdated).add(5, "minutes");
+    const isStale = !cachedValue.nextUpdate || dayjs().isSameOrAfter(dayjs(cachedValue.nextUpdate));
 
-    if (dayjs().isSameOrAfter(expires)) {
+    if (isStale) {
       const hasLock = Boolean(await redis.exists(lockKey));
 
       if (hasLock) {
@@ -97,19 +99,24 @@ async function computeTraffic(route: Route, apiKey: string): Promise<TrafficResp
     })
   );
 
-  return {
-    route: {
-      key: route.key,
-      outbound: {
-        duration: results[0].rows[0].elements[0].duration.value,
-        duration_in_traffic: results[0].rows[0].elements[0].duration_in_traffic.value,
-      },
-      inbound: {
-        duration: results[1].rows[0].elements[0].duration.value,
-        duration_in_traffic: results[1].rows[0].elements[0].duration_in_traffic.value,
-      },
+  const routeResponse = {
+    key: route.key,
+    outbound: {
+      duration: results[0].rows[0].elements[0].duration.value,
+      duration_in_traffic: results[0].rows[0].elements[0].duration_in_traffic.value,
     },
-    lastUpdated: dayjs().toISOString(),
+    inbound: {
+      duration: results[1].rows[0].elements[0].duration.value,
+      duration_in_traffic: results[1].rows[0].elements[0].duration_in_traffic.value,
+    },
+  } satisfies RouteResponse;
+
+  const nextUpdate = determineNextTrafficUpdate(routeResponse).toISOString();
+
+  return {
+    route: routeResponse,
+    lastUpdated: now.toISOString(),
+    nextUpdate,
   };
 }
 
