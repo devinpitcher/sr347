@@ -79,7 +79,7 @@ export default function Home() {
 
             <TrafficView isAfternoon={isAfternoon} />
 
-            <p className="text-center text-xs text-slate-500">Live traffic data provided by Google Maps</p>
+            <p className="text-center text-xs text-slate-500">Live traffic data provided by TomTom</p>
           </div>
         </section>
 
@@ -180,9 +180,9 @@ export default function Home() {
               <a href="https://devinpitcher.com?ref=sr347.com" className="underline" target="_blank">
                 a fellow Maricopan / software engineer
               </a>{" "}
-              trying to make commuting the 347 a little less stressful. If you find this website useful, please consider a small donation. Integrating Google
-              Maps functionality into this website isn&apos;t completely free, but I&apos;d like to provide this service to people at no cost. If you have the
-              means, your donation help offset the cost of running this service and further development. Thank you!
+              trying to make commuting the 347 a little less stressful. If you find this website useful, please consider a small donation. Integrating TomTom
+              traffic functionality into this website isn&apos;t completely free, but I&apos;d like to provide this service to people at no cost. If you have
+              the means, your donation help offset the cost of running this service and further development. Thank you!
             </p>
 
             <div className="mt-10 flex items-center justify-center gap-x-6">

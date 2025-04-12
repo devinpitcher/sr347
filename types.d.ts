@@ -12,37 +12,6 @@ declare global {
     }
   }
 
-  type Point = [number, number];
-
-  type Segment = {
-    description: string;
-    origin: Point;
-    destination: Point;
-  };
-
-  export type Route = {
-    key: string;
-    outbound: Segment;
-    inbound: Segment;
-  };
-
-  export type SegmentResponse = {
-    duration: number;
-    duration_in_traffic: number;
-  };
-
-  export type RouteResponse = {
-    key: string;
-    outbound: SegmentResponse;
-    inbound: SegmentResponse;
-  };
-
-  export type TrafficResponse = {
-    route: RouteResponse;
-    lastUpdated: string;
-    nextUpdate: string;
-  };
-
   export type WithAppVersion<T extends object> = T & {
     appVersion?: string;
   };

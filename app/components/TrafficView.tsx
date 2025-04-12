@@ -7,8 +7,8 @@ import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import { AppContext } from "~/utils/context";
 import { useSWRFetcher } from "~/utils/swr";
 import { determineTrafficStatus } from "~/utils/traffic";
-import { ExclamationTriangleIcon } from "@heroicons/react/20/solid";
 import { ClickTap } from "~/components/utils";
+import { Traffic } from "~/types/traffic";
 
 dayjs.extend(isSameOrAfter);
 
@@ -16,11 +16,11 @@ export default function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
   const { appVersion } = useContext(AppContext);
   const fetcher = useSWRFetcher();
 
-  const { data } = useSWR<WithAppVersion<TrafficResponse>>(`/api/traffic/347`, {
+  const { data } = useSWR<WithAppVersion<Traffic.RouteResponse>>(`/api/traffic/347`, {
     fetcher: async (url: string) => {
       const response = await fetcher(url);
 
-      return (await response.json()) as TrafficResponse;
+      return (await response.json()) as Traffic.RouteResponse;
     },
     refreshInterval: (data) => {
       if (!data) return 60_000;

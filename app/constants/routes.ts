@@ -1,5 +1,7 @@
-const OUTBOUND_CITY_LIMIT: Point = [33.087033, -112.036442];
-const INBOUND_CITY_LIMIT: Point = [33.087006, -112.0367];
+import { Traffic } from "~/types/traffic";
+
+const OUTBOUND_CITY_LIMIT: Traffic.Point = [33.087033, -112.036442];
+const INBOUND_CITY_LIMIT: Traffic.Point = [33.087006, -112.0367];
 
 export const ROUTES = [
   {
@@ -28,4 +30,4 @@ export const ROUTES = [
       destination: [33.05801754333691, -111.95697985357468],
     },
   },
-] satisfies Route[];
+] satisfies Traffic.RouteDefinition[];

@@ -1,14 +1,15 @@
 import { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { ROUTES } from "~/constants/routes";
-import { type DistanceMatrixResponseData } from "@googlemaps/google-maps-services-js";
 import { Redis } from "@upstash/redis/cloudflare";
 import dayjs from "dayjs";
 import { determineNextTrafficUpdate } from "~/utils/traffic";
+import { TomTomService } from "~/services/tomtom";
+import { Traffic } from "~/types/traffic";
 
 export const loader = async ({ context, params }: LoaderFunctionArgs) => {
   const {
     ctx: { waitUntil },
-    env: { UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL, CF_PAGES_COMMIT_SHA, MAPS_API_KEY },
+    env: { UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL, CF_PAGES_COMMIT_SHA, TOMTOM_API_KEY },
   } = context.cloudflare;
 
   const matchedRoute = ROUTES.find(({ key }) => key.toLowerCase() === params.route!.toLowerCase());
@@ -27,22 +28,42 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
 
   const key = `route-${matchedRoute.key}`;
   const lockKey = `route-${matchedRoute.key}-lock`;
-  const cachedValue = await redis.get<TrafficResponse>(key);
+  const cachedValue = await redis.get<Traffic.RouteResponse>(key);
 
-  const updateCachedTraffic = async () => {
-    const trafficResponse = await computeTraffic(matchedRoute, MAPS_API_KEY);
-    await redis.set(key, trafficResponse);
+  const tomtom = new TomTomService(TOMTOM_API_KEY);
+
+  const updateCachedTraffic = async (): Promise<Traffic.RouteResponse> => {
+    const inbound = await tomtom.getRoute(matchedRoute.inbound.origin.join(","), matchedRoute.inbound.destination.join(","));
+    const outbound = await tomtom.getRoute(matchedRoute.outbound.origin.join(","), matchedRoute.outbound.destination.join(","));
+
+    const route: Traffic.Route = {
+      key: matchedRoute.key,
+      inbound,
+      outbound,
+    };
+
+    const now = new Date();
+    const nextUpdate = determineNextTrafficUpdate(route).toISOString();
+
+    const response: Traffic.RouteResponse = {
+      route,
+      lastUpdated: now.toISOString(),
+      nextUpdate,
+      source: "tomtom",
+    };
+
+    await redis.set(key, response);
     await redis.del(lockKey);
 
-    return trafficResponse;
+    return response;
   };
 
   if (cachedValue !== null) {
-    if (!MAPS_API_KEY) {
+    if (!TOMTOM_API_KEY) {
       return Response.json({
         ...cachedValue,
         appVersion: CF_PAGES_COMMIT_SHA,
-      } satisfies WithAppVersion<TrafficResponse>);
+      } satisfies WithAppVersion<Traffic.RouteResponse>);
     }
 
     const isStale = !cachedValue.nextUpdate || dayjs().isSameOrAfter(dayjs(cachedValue.nextUpdate));
@@ -54,7 +75,7 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
         return Response.json({
           ...cachedValue,
           appVersion: CF_PAGES_COMMIT_SHA,
-        } satisfies WithAppVersion<TrafficResponse>);
+        } satisfies WithAppVersion<Traffic.RouteResponse>);
       }
 
       await redis.set(lockKey, true, { ex: 60 });
@@ -65,7 +86,7 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
     return Response.json({
       ...cachedValue,
       appVersion: CF_PAGES_COMMIT_SHA,
-    } satisfies WithAppVersion<TrafficResponse>);
+    } satisfies WithAppVersion<Traffic.RouteResponse>);
   }
 
   const trafficResponse = await updateCachedTraffic();
@@ -73,61 +94,5 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
   return Response.json({
     ...trafficResponse,
     appVersion: CF_PAGES_COMMIT_SHA,
-  } satisfies WithAppVersion<TrafficResponse>);
+  } satisfies WithAppVersion<Traffic.RouteResponse>);
 };
-
-async function computeTraffic(route: Route, apiKey: string): Promise<TrafficResponse> {
-  if (!apiKey) throw new Error("Google Maps API key required");
-
-  const now = new Date();
-
-  const results = await Promise.all(
-    [route.outbound, route.inbound].map(async (segment) => {
-      const requestUrl = new URL("https://maps.googleapis.com/maps/api/distancematrix/json");
-
-      requestUrl.searchParams.append("origins", segment.origin.toString());
-      requestUrl.searchParams.append("destinations", segment.destination.toString());
-      requestUrl.searchParams.set("mode", "driving");
-      requestUrl.searchParams.set("traffic_model", "best_guess");
-      requestUrl.searchParams.set("units", "imperial");
-      requestUrl.searchParams.set("departure_time", toTimestamp(now).toString());
-      requestUrl.searchParams.set("key", apiKey);
-
-      const result = await fetch(requestUrl);
-
-      return (await result.json()) as DistanceMatrixResponseData;
-    })
-  );
-
-  const routeResponse = {
-    key: route.key,
-    outbound: {
-      duration: results[0].rows[0].elements[0].duration.value,
-      duration_in_traffic: results[0].rows[0].elements[0].duration_in_traffic.value,
-    },
-    inbound: {
-      duration: results[1].rows[0].elements[0].duration.value,
-      duration_in_traffic: results[1].rows[0].elements[0].duration_in_traffic.value,
-    },
-  } satisfies RouteResponse;
-
-  const nextUpdate = determineNextTrafficUpdate(routeResponse).toISOString();
-
-  return {
-    route: routeResponse,
-    lastUpdated: now.toISOString(),
-    nextUpdate,
-  };
-}
-
-function toTimestamp(o: "now" | number | Date): number | "now" {
-  if (o === "now") {
-    return o;
-  }
-
-  if (o instanceof Date) {
-    return Math.round(Number(o) / 1000);
-  }
-
-  return o;
-}

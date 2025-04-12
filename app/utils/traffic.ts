@@ -1,3 +1,4 @@
+import { Traffic } from "~/types/traffic";
 import { dayjs, getDate } from "~/utils/dayjs";
 
 export type TrafficStatus = "unknown" | "clear" | "delayed" | "slow";
@@ -27,7 +28,10 @@ export function determineIsOffHours() {
   return currentHour >= 0 && currentHour < 5;
 }
 
-export function determineNextTrafficUpdate(route: RouteResponse): dayjs.Dayjs {
+export function determineNextTrafficUpdate(route: Traffic.Route): dayjs.Dayjs {
+  // Trying with TomTom
+  return getDate().add(5, "minutes");
+
   if (determineIsOffHours()) {
     return getDate().add(15, "minutes");
   }
