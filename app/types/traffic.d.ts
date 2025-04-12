@@ -1,6 +1,7 @@
 export namespace Traffic {
   export type RouteDefinition = {
     key: string;
+    name: string;
     outbound: SegmentDefinition;
     inbound: SegmentDefinition;
   };
