@@ -45,7 +45,7 @@ declare global {
     RecurrenceSchedules: AlertRecurrenceSchedule[];
     Reported: number;
     Restrictions: AlertRestrictions;
-    RoadwayName: string;
+    RoadwayName: string | null;
     Severity: "minor" | "major" | null;
     StartDate: number;
   }
