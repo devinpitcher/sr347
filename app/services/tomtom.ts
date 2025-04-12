@@ -14,6 +14,7 @@ export class TomTomService {
     requestUrl.searchParams.set("key", this.apiKey);
     requestUrl.searchParams.set("routeType", "fastest");
     requestUrl.searchParams.set("traffic", "true");
+    requestUrl.searchParams.set("computeTravelTimeFor", "all");
 
     const response = await fetch(requestUrl, {
       method: "GET",
@@ -36,9 +37,12 @@ export class TomTomService {
 
     const [route] = data.routes;
 
+    const duration = route.summary.travelTimeInSeconds - route.summary.trafficDelayInSeconds;
+    const duration_in_traffic = route.summary.liveTrafficIncidentsTravelTimeInSeconds;
+
     return {
-      duration: route.summary.travelTimeInSeconds,
-      duration_in_traffic: route.summary.liveTrafficIncidentsTravelTimeInSeconds,
+      duration,
+      duration_in_traffic: duration_in_traffic ?? duration,
     };
   }
 }
