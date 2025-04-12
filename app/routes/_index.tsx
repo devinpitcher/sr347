@@ -74,7 +74,7 @@ export default function Home() {
                 <span className="mr-1 animate-pulse rounded bg-red-700 px-2 py-0.5 text-sm text-white">Live</span>&nbsp;
                 <span>Traffic</span>
               </h2>
-              <p className="mt-1 text-xs text-slate-500">Traffic updates automatically</p>
+              <p className="mt-1 text-xs text-slate-500">Traffic updates every 5 minutes</p>
             </div>
 
             <TrafficView isAfternoon={isAfternoon} />
