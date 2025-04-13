@@ -64,6 +64,20 @@ export const ROUTES = (
       },
     },
     {
+      key: "desert-passage",
+      name: "Desert Passage",
+      outbound: {
+        description: "Desert Passage to I-10",
+        origin: [33.04813893774115, -112.00272551536138],
+        destination: OUTBOUND_I10,
+      },
+      inbound: {
+        description: "I-10 to Desert Passage",
+        origin: INBOUND_I10,
+        destination: [33.04813893774115, -112.00272551536138],
+      },
+    },
+    {
       key: "santa-rosa-springs",
       name: "Santa Rosa Springs",
       outbound: {
@@ -278,13 +292,13 @@ export const ROUTES = (
       name: "Desert Cedars",
       outbound: {
         description: "Desert Cedars to I-10",
-        origin: [33.04814138349053, -112.00277553310555],
+        origin: [33.046647920558605, -112.04271085581105],
         destination: OUTBOUND_I10,
       },
       inbound: {
         description: "I-10 to Desert Cedars",
         origin: INBOUND_I10,
-        destination: [33.04814138349053, -112.00277553310555],
+        destination: [33.046647920558605, -112.04271085581105],
       },
     },
     {
