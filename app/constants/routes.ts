@@ -177,7 +177,7 @@ export const ROUTES = (
     },
     {
       key: "the-lakes-at-rancho",
-      name: "The Lakes",
+      name: "The Lakes at Rancho El Dorado",
       outbound: {
         description: "The Lakes to I-10",
         origin: [33.075062522515054, -112.00449489272852],
@@ -205,7 +205,7 @@ export const ROUTES = (
     },
     {
       key: "villages",
-      name: "Villages",
+      name: "Villages at Rancho El Dorado",
       outbound: {
         description: "Villages to I-10",
         origin: [33.07067715772965, -112.03762162405454],
@@ -260,6 +260,20 @@ export const ROUTES = (
       },
     },
     {
+      key: "moonlight-ridge",
+      name: "Moonlight Ridge",
+      outbound: {
+        description: "Moonlight Ridge to I-10",
+        origin: [33.07234140207875, -112.06999036498107],
+        destination: OUTBOUND_I10,
+      },
+      inbound: {
+        description: "I-10 to Moonlight Ridge",
+        origin: INBOUND_I10,
+        destination: [33.07234140207875, -112.06999036498107],
+      },
+    },
+    {
       key: "desert-cedars",
       name: "Desert Cedars",
       outbound: {
@@ -274,17 +288,59 @@ export const ROUTES = (
       },
     },
     {
-      key: "hidden-valley-papago-amarillo",
-      name: "Hidden Valley",
+      key: "amarillo-creek",
+      name: "Amarillo Creek",
       outbound: {
-        description: "Papago & Amarillo Valley to I-10",
-        origin: [33.04814138349053, -112.00277553310555],
+        description: "Amarillo Creek to I-10",
+        origin: [32.98504925441318, -112.07833455772573],
         destination: OUTBOUND_I10,
       },
       inbound: {
-        description: "I-10 to Papago & Amarillo Valley",
+        description: "I-10 to Amarillo Creek",
         origin: INBOUND_I10,
-        destination: [33.04814138349053, -112.00277553310555],
+        destination: [32.98504925441318, -112.07833455772573],
+      },
+    },
+    {
+      key: "hidden-valley-papago-warren",
+      name: "Hidden Valley - Papago & Warren",
+      outbound: {
+        description: "Hidden Valley to I-10",
+        origin: [32.9854688291899, -112.13277240256399],
+        destination: OUTBOUND_I10,
+      },
+      inbound: {
+        description: "I-10 to Hidden Valley",
+        origin: INBOUND_I10,
+        destination: [32.9854688291899, -112.13277240256399],
+      },
+    },
+    {
+      key: "hidden-valley-warren-century",
+      name: "Hidden Valley - Warren & Century",
+      outbound: {
+        description: "Hidden Valley to I-10",
+        origin: [32.898531091891726, -112.1346588011455],
+        destination: OUTBOUND_I10,
+      },
+      inbound: {
+        description: "I-10 to Hidden Valley",
+        origin: INBOUND_I10,
+        destination: [32.898531091891726, -112.1346588011455],
+      },
+    },
+    {
+      key: "hidden-valley-ralston-robin",
+      name: "Hidden Valley - Ralston & Robin",
+      outbound: {
+        description: "Hidden Valley to I-10",
+        origin: [32.85496694864441, -112.11753941647807],
+        destination: OUTBOUND_I10,
+      },
+      inbound: {
+        description: "I-10 to Hidden Valley",
+        origin: INBOUND_I10,
+        destination: [32.85496694864441, -112.11753941647807],
       },
     },
   ] satisfies Traffic.RouteDefinition[]
