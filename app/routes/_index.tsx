@@ -6,7 +6,6 @@ import { HeartIcon } from "@heroicons/react/20/solid";
 import { Fragment, useContext, useEffect, useRef } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import SR347Logo from "~/assets/sr347.svg?react";
-import Banner from "~/components/Banner";
 import { AppContext } from "~/utils/context";
 import useTabVisibility from "~/utils/hooks/useTabVisibility";
 import { trackPage } from "~/utils/umami";
@@ -58,8 +57,6 @@ export default function Home() {
 
   return (
     <section>
-      <Banner />
-
       <nav className="mx-auto flex flex-row items-center justify-center bg-slate-200 p-4 dark:bg-slate-700">
         <span className="mr-1 mt-1 text-lg font-semibold">SR</span>
         <span className="sr-only">347</span>
