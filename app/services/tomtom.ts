@@ -37,7 +37,7 @@ export class TomTomService {
 
     const [route] = data.routes;
 
-    const duration = route.summary.travelTimeInSeconds - route.summary.trafficDelayInSeconds;
+    const duration = route.summary.noTrafficTravelTimeInSeconds;
     const duration_in_traffic = route.summary.liveTrafficIncidentsTravelTimeInSeconds;
 
     return {
