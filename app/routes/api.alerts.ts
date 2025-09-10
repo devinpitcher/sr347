@@ -18,7 +18,11 @@ export const loader = async ({ context }: LoaderFunctionArgs) => {
   const updateCachedAlerts = async (): Promise<AlertsResponse> => {
     const response = await fetch(`https://az511.com/api/v2/get/event?key=${AZ511_API_KEY}`);
     const allAlerts = (await response.json()) as Alert[];
-    const alerts = allAlerts.filter((alert) => alert.RoadwayName?.toUpperCase() === "SR-347");
+    const alerts = allAlerts.filter((alert) => {
+      if (!alert.RoadwayName) return false;
+      const roadwayName = alert.RoadwayName.toUpperCase();
+      return /(SR|AZ?)[-\s]?347/gi.test(roadwayName);
+    });
 
     const data = {
       alerts,
