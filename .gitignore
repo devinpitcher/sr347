@@ -1,11 +1,8 @@
-node_modules
-
-/.cache
-/build
-.env
-
-.wrangler
-
 .dev.vars
-
+.DS_Store
+.env
+.wrangler
+/.cache
 /.idea
+/build
+node_modules
