@@ -8,7 +8,7 @@ import { Traffic } from "~/types/traffic";
 
 export const loader = async ({ context, params }: LoaderFunctionArgs) => {
   const {
-    ctx: { waitUntil },
+    ctx,
     env: { UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL, CF_PAGES_COMMIT_SHA, TOMTOM_API_KEY },
   } = context.cloudflare;
 
@@ -33,8 +33,8 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
   const tomtom = new TomTomService(TOMTOM_API_KEY);
 
   const updateCachedTraffic = async (): Promise<Traffic.RouteResponse> => {
-    const inbound = await tomtom.getRoute(matchedRoute.inbound.origin.join(","), matchedRoute.inbound.destination.join(","));
-    const outbound = await tomtom.getRoute(matchedRoute.outbound.origin.join(","), matchedRoute.outbound.destination.join(","));
+    const inbound = await tomtom.getRoute(matchedRoute.inbound.origin.join(","), matchedRoute.inbound.destination.join(","), matchedRoute.duration);
+    const outbound = await tomtom.getRoute(matchedRoute.outbound.origin.join(","), matchedRoute.outbound.destination.join(","), matchedRoute.duration);
 
     const route: Traffic.Route = {
       key: matchedRoute.key,
@@ -80,7 +80,7 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
 
       await redis.set(lockKey, true, { ex: 60 });
 
-      waitUntil(updateCachedTraffic());
+      ctx.waitUntil(updateCachedTraffic());
     }
 
     return Response.json({

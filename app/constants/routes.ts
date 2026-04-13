@@ -20,6 +20,7 @@ export const ROUTES = (
         origin: INBOUND_I10,
         destination: INBOUND_CITY_LIMIT,
       },
+      duration: 13 * 60,
     },
     {
       key: "tortosa",

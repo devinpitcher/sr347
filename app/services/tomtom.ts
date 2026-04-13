@@ -8,7 +8,7 @@ export class TomTomService {
     this.apiKey = apiKey;
   }
 
-  public async getRoute(origin: string, destination: string): Promise<Traffic.RouteTraffic> {
+  public async getRoute(origin: string, destination: string, routeDuration?: number): Promise<Traffic.RouteTraffic> {
     const requestUrl = new URL(`https://api.tomtom.com/routing/1/calculateRoute/${origin}:${destination}/json`);
 
     requestUrl.searchParams.set("key", this.apiKey);
@@ -37,12 +37,12 @@ export class TomTomService {
 
     const [route] = data.routes;
 
-    const duration = route.summary.noTrafficTravelTimeInSeconds;
-    const duration_in_traffic = route.summary.liveTrafficIncidentsTravelTimeInSeconds;
+    const duration = routeDuration ?? route.summary.noTrafficTravelTimeInSeconds;
+    const duration_in_traffic = route.summary.liveTrafficIncidentsTravelTimeInSeconds ?? route.summary.noTrafficTravelTimeInSeconds;
 
     return {
       duration,
-      duration_in_traffic: duration_in_traffic ?? duration,
+      duration_in_traffic,
     };
   }
 }

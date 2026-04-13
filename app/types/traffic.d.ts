@@ -4,6 +4,7 @@ export namespace Traffic {
     name: string;
     outbound: SegmentDefinition;
     inbound: SegmentDefinition;
+    duration?: number;
   };
 
   export type SegmentDefinition = {
