@@ -56,8 +56,8 @@ export default function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
   return (
     <div>
       <div>
-        <p className={"text-balance py-3 text-center text-xs"}>
-          ✨ <strong>New!</strong> ✨ Select your neighborhood to get more accurate travel times for <span className={"font-bold italic"}>your</span> commute!
+        <p className={"text-balance py-3 text-xs"}>
+          Select your neighborhood to get more accurate travel times for <span className={"font-bold italic"}>your</span> commute:
         </p>
 
         <div className="grid grid-cols-1">
