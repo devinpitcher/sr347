@@ -1,9 +1,10 @@
-import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData, useRouteLoaderData } from "@remix-run/react";
+import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteLoaderData } from "@remix-run/react";
 import "./styles.pcss";
 import { json, LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { Providers } from "~/utils/context";
 import { useRouteError } from "react-router";
 import { isRouteErrorResponse } from "@remix-run/router/utils";
+import { UMAMI_WEBSITE_ID } from "~/constants/app";
 
 export const loader = async ({ context }: LoaderFunctionArgs) => {
   return json({
@@ -21,7 +22,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
-        <script defer src="/u.js" data-website-id="5b5ededc-9eda-47cf-bf1b-34e897a21c62" data-domains="sr347.com" data-host-url="https://sr347.com"></script>
+        <script defer src="/u.js" data-website-id={UMAMI_WEBSITE_ID} data-domains="sr347.com" data-host-url="https://sr347.com"></script>
       </head>
       <body className="min-h-screen dark:bg-slate-900 dark:text-white">
         <Providers appVersion={data?.appVersion}>{children}</Providers>

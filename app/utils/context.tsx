@@ -19,6 +19,7 @@ export const Providers = ({ children, appVersion }: PropsWithChildren<ProvidersP
       revalidateOnFocus: true,
       revalidateOnMount: true,
       revalidateOnReconnect: true,
+      fetcher: (resource, init) => fetch(resource, init).then((res) => res.json()),
     } satisfies SWRConfiguration;
   }, []);
 

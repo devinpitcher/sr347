@@ -12,6 +12,7 @@ import { trackPage } from "~/utils/umami";
 import { Alerts } from "~/components/Alerts";
 import { ClickTap } from "~/components/utils";
 import { getDate } from "~/utils/dayjs";
+import { Realtime } from "~/components/Realtime";
 
 export const meta: MetaFunction = () => {
   return [
@@ -57,10 +58,14 @@ export default function Home() {
 
   return (
     <section>
-      <nav className="mx-auto flex flex-row items-center justify-center bg-slate-200 p-4 dark:bg-slate-700">
-        <span className="mr-1 mt-1 text-lg font-semibold">SR</span>
-        <span className="sr-only">347</span>
-        <SR347Logo width={40} />
+      <nav className="flex items-center justify-between bg-slate-200 p-5 sm:justify-center dark:bg-slate-700">
+        <div className={"flex flex-row items-center justify-center"}>
+          <span className="mr-1 mt-1 text-lg font-semibold">SR</span>
+          <span className="sr-only">347</span>
+          <SR347Logo width={40} />
+        </div>
+
+        <Realtime />
       </nav>
 
       <main className="mx-auto flex max-w-[1600px] flex-col p-5 lg:flex-row lg:gap-x-8 lg:p-8">
