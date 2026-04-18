@@ -14,7 +14,7 @@ A traffic dashboard for SR347 in Maricopa, Arizona. Checks travel times, live ca
 
 ## Tech stack
 
-- **[Remix](https://remix.run/)** — Full-stack React framework
+- **[TanStack Start](https://tanstack.com/start)** — Full-stack React framework
 - **[Cloudflare Workers](https://workers.cloudflare.com/)** — Serverless API routes
 - **[Upstash Redis](https://upstash.com/)** — Caching for traffic/alert data
 - **[TomTom Routing API](https://developer.tomtom.com/)** — Live traffic travel times
