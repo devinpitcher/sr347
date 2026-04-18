@@ -1,19 +1,10 @@
 /// <reference types="vite-plugin-svgr/client" />
 
-declare global {
-  namespace NodeJS {
-    interface ProcessEnv {
-      NODE_ENV?: string;
-      npm_config_user_agent?: string;
-      CF_PAGES?: string;
-      SHELL?: string;
-      __NEXT_ON_PAGES__KV_SUSPENSE_CACHE?: KVNamespace;
-      [key: string]: string | Fetcher;
-    }
-  }
+import { APP_VERSION_HEADER } from "~/constants/app";
 
+declare global {
   export type WithAppVersion<T extends object> = T & {
-    appVersion?: string;
+    [APP_VERSION_HEADER]?: string;
   };
 
   export interface AlertsResponse {
