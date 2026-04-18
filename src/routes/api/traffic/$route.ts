@@ -1,19 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { env, waitUntil } from "cloudflare:workers";
-import { APP_VERSION_HEADER } from "~/constants/app";
+import { APP_VERSION, APP_VERSION_HEADER } from "~/constants/app";
 import { Redis } from "@upstash/redis/cloudflare";
 import dayjs from "dayjs";
 import { ROUTES } from "~/constants/routes";
 import { Traffic } from "~/types/traffic";
 import { TomTomService } from "~/services/tomtom";
 import { determineNextTrafficUpdate } from "~/lib/traffic";
-import { getAppVersion } from "~/lib/app";
 
 export const Route = createFileRoute("/api/traffic/$route")({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const appVersion = await getAppVersion();
         const matchedRoute = ROUTES.find(({ key }) => key.toLowerCase() === params.route!.toLowerCase());
 
         if (!matchedRoute) {
@@ -64,7 +62,7 @@ export const Route = createFileRoute("/api/traffic/$route")({
           if (!env.TOMTOM_API_KEY) {
             return Response.json({
               ...cachedValue,
-              [APP_VERSION_HEADER]: appVersion,
+              [APP_VERSION_HEADER]: APP_VERSION,
             } satisfies WithAppVersion<Traffic.RouteResponse>);
           }
 
@@ -76,7 +74,7 @@ export const Route = createFileRoute("/api/traffic/$route")({
             if (hasLock) {
               return Response.json({
                 ...cachedValue,
-                [APP_VERSION_HEADER]: appVersion,
+                [APP_VERSION_HEADER]: APP_VERSION,
               } satisfies WithAppVersion<Traffic.RouteResponse>);
             }
 
@@ -87,7 +85,7 @@ export const Route = createFileRoute("/api/traffic/$route")({
 
           return Response.json({
             ...cachedValue,
-            [APP_VERSION_HEADER]: appVersion,
+            [APP_VERSION_HEADER]: APP_VERSION,
           } satisfies WithAppVersion<Traffic.RouteResponse>);
         }
 
@@ -95,7 +93,7 @@ export const Route = createFileRoute("/api/traffic/$route")({
 
         return Response.json({
           ...trafficResponse,
-          [APP_VERSION_HEADER]: appVersion,
+          [APP_VERSION_HEADER]: APP_VERSION,
         } satisfies WithAppVersion<Traffic.RouteResponse>);
       },
     },
