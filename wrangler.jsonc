@@ -13,8 +13,7 @@
       "TOMTOM_API_KEY",
       "UMAMI_API_KEY",
       "UPSTASH_REDIS_REST_TOKEN",
-      "UPSTASH_REDIS_REST_URL",
-      "WORKERS_CI_COMMIT_SHA"
+      "UPSTASH_REDIS_REST_URL"
     ]
   }
 }
