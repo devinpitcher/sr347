@@ -2,10 +2,6 @@ import { sqliteTable, integer, text, real } from "drizzle-orm/sqlite-core";
 import { AZ511 } from "~/types/az511";
 import { InferInsertModel, InferSelectModel } from "drizzle-orm";
 
-export const trafficTable = sqliteTable("traffic", {
-  id: integer(),
-});
-
 export const alertsTable = sqliteTable("alerts", {
   id: integer({ mode: "number" }).primaryKey({ autoIncrement: true }),
   alertId: integer().notNull().unique(),
