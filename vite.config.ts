@@ -1,8 +1,16 @@
-import { vitePlugin as remix, cloudflareDevProxyVitePlugin as remixCloudflareDevProxy } from "@remix-run/dev";
 import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
 import svgr from "vite-plugin-svgr";
+import { cloudflare } from "@cloudflare/vite-plugin";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import viteReact from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  plugins: [remixCloudflareDevProxy(), remix(), tsconfigPaths(), svgr()],
+  server: {
+    port: 3000,
+  },
+  resolve: {
+    tsconfigPaths: true,
+  },
+  plugins: [tailwindcss(), cloudflare({ viteEnvironment: { name: "ssr" } }), tanstackStart(), viteReact(), svgr()],
 });

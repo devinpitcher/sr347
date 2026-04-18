@@ -1,8 +1,11 @@
-.dev.vars
 .DS_Store
+.cache
+.dev.vars
 .env
 .wrangler
 /.cache
 /.idea
+/.tanstack
 /build
+dist
 node_modules
