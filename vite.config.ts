@@ -13,4 +13,7 @@ export default defineConfig({
     tsconfigPaths: true,
   },
   plugins: [tailwindcss(), cloudflare({ viteEnvironment: { name: "ssr" } }), tanstackStart(), viteReact(), svgr()],
+  define: {
+    "import.meta.env.COMMIT_SHA": JSON.stringify(process.env.WORKERS_CI_COMMIT_SHA ?? ""),
+  },
 });
