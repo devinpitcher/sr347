@@ -11,8 +11,8 @@ export default {
         console.log("Updating alerts...");
         waitUntil(
           updateAlerts()
-            .then(() => {
-              console.log("Alerts updated");
+            .then((alerts) => {
+              console.log(`Updated ${alerts.length} alerts`);
             })
             .catch((err) => {
               console.error(err);

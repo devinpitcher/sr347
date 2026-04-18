@@ -30,11 +30,7 @@ export class AZ511Service {
 
     return allAlerts.reduce(
       (acc, alert) => {
-        // if (alert.RoadwayName && /(SR|AZ?)[-\s]?347/gi.test(alert.RoadwayName)) {
-        //   acc.push(this.normalizeAlert(alert));
-        // }
-
-        if (alert.RoadwayName && /(SR|AZ?)[-\s]?2/gi.test(alert.RoadwayName)) {
+        if (alert.RoadwayName && /(SR|AZ?)[-\s]?347/gi.test(alert.RoadwayName)) {
           acc.push(this.normalizeAlert(alert));
         }
 
