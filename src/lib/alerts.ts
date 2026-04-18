@@ -31,5 +31,9 @@ export async function updateAlerts() {
       })
   );
 
-  await db.batch(operations as [(typeof operations)[0], ...typeof operations]);
+  if (operations.length > 0) {
+    await db.batch(operations as [(typeof operations)[0], ...typeof operations]);
+  }
+
+  return alerts;
 }
