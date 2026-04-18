@@ -8,7 +8,15 @@ export class AZ511Service {
   }
 
   public async getAlerts() {
-    const response = await fetch(`https://az511.com/api/v2/get/event?key=${this.apiKey}`);
+    const controller = new AbortController();
+
+    setTimeout(() => {
+      controller.abort();
+    }, 5_000);
+
+    const response = await fetch(`https://az511.com/api/v2/get/event?key=${this.apiKey}`, {
+      signal: controller.signal,
+    });
 
     if (!response.ok) {
       throw new Error(`Failed to get alerts: ${response.status ?? "Unknown status"}`);
