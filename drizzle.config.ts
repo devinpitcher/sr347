@@ -4,6 +4,7 @@ export default drizzleD1Config(
   {
     schema: "./src/database/schema.ts",
     out: "./drizzle",
+    casing: "snake_case",
   },
   { binding: "DATABASE" }
 );
