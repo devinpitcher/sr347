@@ -1,4 +1,4 @@
-import { TrafficSign } from "~/components/TrafficSign";
+import { TrafficSign } from "~/components/traffic-sign";
 import { ROUTES } from "~/constants/routes";
 import useSWR from "swr";
 import { useContext, useMemo } from "react";
