@@ -7,6 +7,18 @@
   "vars": {
     "TZ": "America/Phoenix"
   },
+  "routes": [
+    {
+      "pattern": "sr347.com",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.sr347.com",
+      "custom_domain": true
+    }
+  ],
+  "workers_dev": false,
+  "preview_urls": true,
   "secrets": {
     "required": [
       "AZ511_API_KEY",
