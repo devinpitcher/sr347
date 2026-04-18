@@ -27,5 +27,13 @@
       "UPSTASH_REDIS_REST_TOKEN",
       "UPSTASH_REDIS_REST_URL"
     ]
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DATABASE",
+      "database_name": "sr347",
+      "database_id": "ccc6b64d-3d57-4b26-9a14-edf562ccf8f9",
+      "migrations_dir": "drizzle/migrations"
+    }
+  ]
 }
