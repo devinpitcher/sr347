@@ -27,9 +27,25 @@ export const Alerts = () => {
 };
 
 function AlertsList() {
-  const { data, isLoading } = useSWR<AlertsResponse>("/api/alerts", {
+  const { data, isLoading, error } = useSWR<AlertsResponse>("/api/alerts", {
     refreshInterval: 10 * 60 * 1_000,
   });
+
+  if (error) {
+    return (
+      <div className="rounded-md bg-slate-100 p-4 text-slate-700 ring-1 ring-inset ring-slate-200 dark:bg-slate-800 dark:text-white dark:ring-slate-700">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <ExclamationTriangleIcon className="mt-1 size-5" aria-hidden="true" />
+          </div>
+
+          <div className="ml-3">
+            <p className="text-base">Alerts are unavailable right now</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading || !data) {
     return (
