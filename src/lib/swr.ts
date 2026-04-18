@@ -9,7 +9,13 @@ export const swrConfig: SWRConfiguration = {
   revalidateOnFocus: true,
   revalidateOnMount: true,
   revalidateOnReconnect: true,
-  fetcher: (resource, init) => fetch(resource, init).then((res) => res.json()),
+  fetcher: async (resource, init) => {
+    const res = await fetch(resource, init);
+    if (!res.ok) {
+      throw new Error(res.statusText);
+    }
+    return res.json();
+  },
 };
 
 export const useSWRFetcher = () => {
