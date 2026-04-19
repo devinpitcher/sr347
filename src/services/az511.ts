@@ -40,6 +40,41 @@ export class AZ511Service {
     );
   }
 
+  public async getLiveCamera(id: string | number) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+      controller.abort();
+    }, 5_000);
+
+    try {
+      const response = await fetch(`http://vods.az511.com/adot_${id}.jpg?v=${Date.now()}`, {
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        throw new Error(`[${response.status}] Failed to fetch`);
+      }
+
+      return {
+        body: response.body,
+        contentType: response.headers.get("content-type")!,
+        contentLength: response.headers.get("content-length")!,
+      };
+    } catch (e) {
+      clearTimeout(timeout);
+
+      if (e instanceof Error) {
+        if (e.name === "AbortError") {
+          throw new Error("Request timed out");
+        }
+      }
+
+      throw e;
+    }
+  }
+
   private normalizeAlert(alert: AZ511.Alert) {
     let severity: AlertSeverity | null = null;
     switch (alert.Severity) {

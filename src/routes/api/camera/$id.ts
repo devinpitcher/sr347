@@ -6,12 +6,14 @@ import { CAMERAS } from "~/constants/cameras";
 import dayjs from "dayjs";
 import { appConfig } from "~/config";
 import { chance } from "~/lib/utils";
+import { AZ511Service } from "~/services/az511";
 
 export const Route = createFileRoute("/api/camera/$id")({
   server: {
     handlers: {
       GET: async ({ request, params }) => {
         const clientAppVersion = request.headers.get(APP_VERSION_HEADER);
+        const az511 = new AZ511Service(env.AZ511_API_KEY);
 
         const redis = new Redis({
           url: env.UPSTASH_REDIS_REST_URL,
@@ -41,10 +43,43 @@ export const Route = createFileRoute("/api/camera/$id")({
 
         const now = Date.now();
         const cacheKey = `camera-${params.id}-last-seen`;
-        const url = `http://vods.az511.com/adot_${params.id}.jpg?v=${now}`;
-        const response = await fetch(url);
 
-        if (!response.ok) {
+        try {
+          const image = await az511.getLiveCamera(camera.id);
+
+          if (chance(10)) {
+            const cleanup = async () => {
+              const [firstOffline, alerted] = await redis.pipeline().getdel<number>(cacheKey).getdel<true>(`${cacheKey}-alerted`).exec();
+
+              if (!firstOffline || !alerted || Date.now() - firstOffline < appConfig.CAMERA_OFFLINE_ALERT_THRESHOLD_SECONDS) return;
+
+              return fetch("https://ntfy.sh", {
+                method: "POST",
+                body: JSON.stringify({
+                  topic: "wBgvGGJjMzree8xg",
+                  message: `It first went offline ${dayjs().to(dayjs(firstOffline))}`,
+                  title: `🟢 ${camera.name} Camera Back Online`,
+                  tags: ["sr347"],
+                }),
+              });
+            };
+
+            waitUntil(cleanup());
+          }
+
+          return new Response(image.body, {
+            headers: {
+              "x-camera-name": camera.name,
+              [APP_VERSION_HEADER]: APP_VERSION,
+              "content-type": image.contentType,
+              "content-length": image.contentLength,
+              "cache-control": "private, max-age=15",
+              Vary: APP_VERSION_HEADER,
+            },
+          });
+        } catch (e) {
+          const error = e as Error;
+
           const [lastSeenVal, alreadyAlerted] = await redis
             .pipeline()
             .set(cacheKey, now, {
@@ -65,7 +100,7 @@ export const Route = createFileRoute("/api/camera/$id")({
                 method: "POST",
                 body: JSON.stringify({
                   topic: "wBgvGGJjMzree8xg",
-                  message: `It was last seen ${lastSeenHuman}\nStatus Code: ${response.status}\nStatus Text: ${response.statusText}`,
+                  message: `It was last seen ${lastSeenHuman}\nError: ${error.message}`,
                   title: `🔴 ${camera.name} Camera Offline`,
                   tags: ["sr347"],
                 }),
@@ -88,37 +123,6 @@ export const Route = createFileRoute("/api/camera/$id")({
             }
           );
         }
-
-        if (chance(10)) {
-          const cleanup = async () => {
-            const [firstOffline, alerted] = await redis.pipeline().getdel<number>(cacheKey).getdel<true>(`${cacheKey}-alerted`).exec();
-
-            if (!firstOffline || !alerted || Date.now() - firstOffline < appConfig.CAMERA_OFFLINE_ALERT_THRESHOLD_SECONDS) return;
-
-            return fetch("https://ntfy.sh", {
-              method: "POST",
-              body: JSON.stringify({
-                topic: "wBgvGGJjMzree8xg",
-                message: `It first went offline ${dayjs().to(dayjs(firstOffline))}`,
-                title: `🟢 ${camera.name} Camera Back Online`,
-                tags: ["sr347"],
-              }),
-            });
-          };
-
-          waitUntil(cleanup());
-        }
-
-        return new Response(response.body, {
-          headers: {
-            "x-camera-name": camera.name,
-            [APP_VERSION_HEADER]: APP_VERSION,
-            "content-type": response.headers.get("content-type")!,
-            "content-length": response.headers.get("content-length")!,
-            "cache-control": "private, max-age=15",
-            Vary: APP_VERSION_HEADER,
-          },
-        });
       },
     },
   },
