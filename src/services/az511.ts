@@ -7,37 +7,48 @@ export class AZ511Service {
     this.apiKey = apiKey;
   }
 
-  public async getAlerts() {
+  public async getAllAlerts() {
     const controller = new AbortController();
-
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
       controller.abort();
     }, 5_000);
 
-    const response = await fetch(`https://az511.com/api/v2/get/event?key=${this.apiKey}`, {
-      signal: controller.signal,
+    try {
+      const response = await fetch(`https://az511.com/api/v2/get/event?key=${this.apiKey}`, {
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        throw new Error(`Failed to get alerts: ${response.status ?? "Unknown status"}`);
+      }
+
+      return await (response.json() as Promise<AZ511.Alert[]>);
+    } catch (e) {
+      clearTimeout(timeout);
+      return [] as AZ511.Alert[];
+    }
+  }
+
+  public async get347Alerts() {
+    return this.getAllAlerts().then((allAlerts) => {
+      const alerts = allAlerts.reduce(
+        (acc, alert) => {
+          if (alert.RoadwayName && /(SR|AZ?)[-\s]?347/gi.test(alert.RoadwayName)) {
+            acc.push(this.normalizeAlert(alert));
+          }
+
+          return acc;
+        },
+        [] as ReturnType<typeof this.normalizeAlert>[]
+      );
+
+      return {
+        alerts,
+        allAlertCount: allAlerts.length,
+      };
     });
-
-    if (!response.ok) {
-      throw new Error(`Failed to get alerts: ${response.status ?? "Unknown status"}`);
-    }
-
-    const allAlerts = (await response.json()) as AZ511.Alert[];
-
-    if (!Array.isArray(allAlerts)) {
-      throw new Error(`Alerts expected to be an array, actually received ${typeof allAlerts}`);
-    }
-
-    return allAlerts.reduce(
-      (acc, alert) => {
-        if (alert.RoadwayName && /(SR|AZ?)[-\s]?347/gi.test(alert.RoadwayName)) {
-          acc.push(this.normalizeAlert(alert));
-        }
-
-        return acc;
-      },
-      [] as ReturnType<typeof this.normalizeAlert>[]
-    );
   }
 
   public async getLiveCamera(id: string | number) {

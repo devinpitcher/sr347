@@ -6,7 +6,7 @@ import { buildConflictUpdateColumns } from "~/database/utils";
 
 export async function updateAlerts() {
   const az511 = new AZ511Service(env.AZ511_API_KEY);
-  const alerts = await az511.getAlerts();
+  const { alerts, allAlertCount } = await az511.get347Alerts();
   const now = new Date();
 
   const operations = alerts.map(({ id, ...alert }) =>
