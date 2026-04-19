@@ -1,6 +1,6 @@
 import { sqliteTable, integer, text, real } from "drizzle-orm/sqlite-core";
 import { AZ511 } from "~/types/az511";
-import { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import { InferInsertModel, InferSelectModel, sql } from "drizzle-orm";
 
 export const alertsTable = sqliteTable("alerts", {
   id: integer({ mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -37,3 +37,12 @@ export const alertsTable = sqliteTable("alerts", {
 
 export type SelectAlert = InferSelectModel<typeof alertsTable>;
 export type InsertAlert = InferInsertModel<typeof alertsTable>;
+
+export const alertCronLogTable = sqliteTable("alert_cron_log", {
+  id: integer({ mode: "number" }).primaryKey({ autoIncrement: true }),
+  count: integer({ mode: "number" }).notNull(),
+  totalCount: integer({ mode: "number" }).notNull(),
+  timestamp: text("timestamp")
+    .notNull()
+    .default(sql`(current_timestamp)`),
+});

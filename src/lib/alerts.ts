@@ -1,7 +1,7 @@
 import { AZ511Service } from "~/services/az511";
 import { env } from "cloudflare:workers";
 import { db } from "~/database/client";
-import { alertsTable } from "~/database/schema";
+import { alertCronLogTable, alertsTable } from "~/database/schema";
 import { buildConflictUpdateColumns } from "~/database/utils";
 
 export async function updateAlerts() {
@@ -24,9 +24,13 @@ export async function updateAlerts() {
       })
   );
 
-  if (operations.length > 0) {
-    await db.batch(operations as [(typeof operations)[0], ...typeof operations]);
-  }
+  await db.batch([
+    db.insert(alertCronLogTable).values({
+      count: alerts.length,
+      totalCount: allAlertCount,
+    }),
+    ...operations,
+  ]);
 
   return alerts;
 }

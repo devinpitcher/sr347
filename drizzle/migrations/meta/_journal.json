@@ -8,6 +8,13 @@
       "when": 1776538636742,
       "tag": "0000_add_alerts",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1776623742918,
+      "tag": "0001_add_alert_cron_log",
+      "breakpoints": true
     }
   ]
 }
