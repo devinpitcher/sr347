@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getCurrentAlerts } from "~/lib/alerts";
+import { getCurrentAlerts } from "~/functions/alerts";
 
 export const Route = createFileRoute("/api/alerts")({
   server: {
