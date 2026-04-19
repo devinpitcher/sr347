@@ -33,8 +33,17 @@ export const Route = createFileRoute("/api/traffic/$route")({
         const tomtom = new TomTomService(env.TOMTOM_API_KEY);
 
         const updateCachedTraffic = async (): Promise<Traffic.RouteResponse> => {
-          const inbound = await tomtom.getRoute(matchedRoute.inbound.origin.join(","), matchedRoute.inbound.destination.join(","), matchedRoute.duration);
-          const outbound = await tomtom.getRoute(matchedRoute.outbound.origin.join(","), matchedRoute.outbound.destination.join(","), matchedRoute.duration);
+          const inbound = await tomtom.getRoute({
+            origin: matchedRoute.inbound.origin.join(","),
+            destination: matchedRoute.inbound.destination.join(","),
+            routeDuration: matchedRoute.duration,
+          });
+
+          const outbound = await tomtom.getRoute({
+            origin: matchedRoute.outbound.origin.join(","),
+            destination: matchedRoute.outbound.destination.join(","),
+            routeDuration: matchedRoute.duration,
+          });
 
           const route: Traffic.Route = {
             key: matchedRoute.key,

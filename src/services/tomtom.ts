@@ -8,7 +8,15 @@ export class TomTomService {
     this.apiKey = apiKey;
   }
 
-  public async getRoute(origin: string, destination: string, routeDuration?: number): Promise<Traffic.RouteTraffic> {
+  public async getRoute({
+    origin,
+    destination,
+    routeDuration,
+  }: {
+    origin: string;
+    destination: string;
+    routeDuration?: number;
+  }): Promise<Traffic.RouteTraffic> {
     const requestUrl = new URL(`https://api.tomtom.com/routing/1/calculateRoute/${origin}:${destination}/json`);
 
     requestUrl.searchParams.set("key", this.apiKey);
