@@ -40,5 +40,9 @@
     "crons": [
       "*/5 * * * *"
     ]
+  },
+  "ai": {
+    "binding": "AI",
+    "remote": true
   }
 }
