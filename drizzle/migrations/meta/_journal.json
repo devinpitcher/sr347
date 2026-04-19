@@ -15,6 +15,13 @@
       "when": 1776623742918,
       "tag": "0001_add_alert_cron_log",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1776632999530,
+      "tag": "0002_add_traffic_table",
+      "breakpoints": true
     }
   ]
 }

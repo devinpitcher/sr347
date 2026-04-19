@@ -46,3 +46,14 @@ export const alertCronLogTable = sqliteTable("alert_cron_log", {
     .notNull()
     .default(sql`(current_timestamp)`),
 });
+
+export const trafficTable = sqliteTable("traffic", {
+  id: integer({ mode: "number" }).primaryKey({ autoIncrement: true }),
+  routeId: text().notNull(),
+  inboundDuration: integer({ mode: "number" }).notNull(),
+  inboundDurationInTraffic: integer({ mode: "number" }).notNull(),
+  outboundDuration: integer({ mode: "number" }).notNull(),
+  outboundDurationInTraffic: integer({ mode: "number" }).notNull(),
+  queryTimestamp: integer({ mode: "timestamp" }).notNull(),
+  nextUpdate: integer({ mode: "timestamp" }).notNull(),
+});

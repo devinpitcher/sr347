@@ -19,7 +19,6 @@ export namespace Traffic {
     route: Route;
     lastUpdated: string;
     nextUpdate: string;
-    source: "tomtom"; // @TODO remove
   };
 
   export type Route = {

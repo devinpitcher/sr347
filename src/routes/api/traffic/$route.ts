@@ -1,107 +1,111 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { env, waitUntil } from "cloudflare:workers";
+import { env } from "cloudflare:workers";
 import { APP_VERSION, APP_VERSION_HEADER } from "~/constants/app";
 import { Redis } from "@upstash/redis/cloudflare";
 import dayjs from "dayjs";
 import { ROUTES } from "~/constants/routes";
 import { Traffic } from "~/types/traffic";
 import { TomTomService } from "~/services/tomtom";
-import { determineNextTrafficUpdate } from "~/lib/traffic";
+import { db } from "~/database/client";
+import { trafficTable } from "~/database/schema";
+import { desc, eq } from "drizzle-orm";
+
+const tomtom = new TomTomService(env.TOMTOM_API_KEY);
+const redis = new Redis({
+  url: env.UPSTASH_REDIS_REST_URL,
+  token: env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 export const Route = createFileRoute("/api/traffic/$route")({
   server: {
     handlers: {
       GET: async ({ params }) => {
         const matchedRoute = ROUTES.find(({ key }) => key.toLowerCase() === params.route!.toLowerCase());
-
         if (!matchedRoute) {
-          return new Response(null, {
-            status: 404,
-            statusText: "Route not found",
-          });
+          return new Response("Route not found", { status: 404 });
         }
 
-        const redis = new Redis({
-          url: env.UPSTASH_REDIS_REST_URL,
-          token: env.UPSTASH_REDIS_REST_TOKEN,
+        const lockKey = `route-${matchedRoute.key}-lock`;
+
+        const queryResult = await db
+          .select()
+          .from(trafficTable)
+          .where(eq(trafficTable.routeId, matchedRoute.key))
+          .orderBy(desc(trafficTable.queryTimestamp))
+          .limit(1);
+
+        const currentValue = queryResult.pop();
+
+        if (currentValue != null) {
+          const currentValueResponse = {
+            route: {
+              key: currentValue.routeId,
+              inbound: {
+                duration: currentValue.inboundDuration,
+                duration_in_traffic: currentValue.inboundDurationInTraffic,
+              },
+              outbound: {
+                duration: currentValue.outboundDuration,
+                duration_in_traffic: currentValue.outboundDurationInTraffic,
+              },
+            },
+            lastUpdated: currentValue.queryTimestamp.toISOString(),
+            nextUpdate: currentValue.nextUpdate.toISOString(),
+            [APP_VERSION_HEADER]: APP_VERSION,
+          } satisfies WithAppVersion<Traffic.RouteResponse>;
+
+          if (!env.TOMTOM_API_KEY) {
+            return Response.json(currentValueResponse);
+          }
+
+          const isStale = dayjs().isSameOrAfter(dayjs(currentValue.queryTimestamp).add(5, "minutes"));
+          if (!isStale) {
+            return Response.json(currentValueResponse);
+          }
+
+          const hasLock = Boolean(await redis.exists(lockKey));
+          if (hasLock) {
+            return Response.json(currentValueResponse);
+          }
+
+          await redis.set(lockKey, true, { ex: 60 });
+        }
+
+        const queryTime = dayjs();
+        const nextUpdate = queryTime.clone().add(5, "minutes");
+
+        const inbound = await tomtom.getRoute({
+          origin: matchedRoute.inbound.origin.join(","),
+          destination: matchedRoute.inbound.destination.join(","),
+          routeDuration: matchedRoute.duration,
         });
 
-        const key = `route-${matchedRoute.key}`;
-        const lockKey = `route-${matchedRoute.key}-lock`;
-        const cachedValue = await redis.get<Traffic.RouteResponse>(key);
+        const outbound = await tomtom.getRoute({
+          origin: matchedRoute.outbound.origin.join(","),
+          destination: matchedRoute.outbound.destination.join(","),
+          routeDuration: matchedRoute.duration,
+        });
 
-        const tomtom = new TomTomService(env.TOMTOM_API_KEY);
+        await db.insert(trafficTable).values({
+          routeId: matchedRoute.key,
+          inboundDuration: inbound.duration,
+          inboundDurationInTraffic: inbound.duration_in_traffic,
+          outboundDuration: outbound.duration,
+          outboundDurationInTraffic: outbound.duration_in_traffic,
+          queryTimestamp: queryTime.toDate(),
+          nextUpdate: nextUpdate.toDate(),
+        });
 
-        const updateCachedTraffic = async (): Promise<Traffic.RouteResponse> => {
-          const inbound = await tomtom.getRoute({
-            origin: matchedRoute.inbound.origin.join(","),
-            destination: matchedRoute.inbound.destination.join(","),
-            routeDuration: matchedRoute.duration,
-          });
+        await redis.del(lockKey);
 
-          const outbound = await tomtom.getRoute({
-            origin: matchedRoute.outbound.origin.join(","),
-            destination: matchedRoute.outbound.destination.join(","),
-            routeDuration: matchedRoute.duration,
-          });
-
-          const route: Traffic.Route = {
+        return Response.json({
+          route: {
             key: matchedRoute.key,
             inbound,
             outbound,
-          };
-
-          const now = new Date();
-          const nextUpdate = determineNextTrafficUpdate(route).toISOString();
-
-          const response: Traffic.RouteResponse = {
-            route,
-            lastUpdated: now.toISOString(),
-            nextUpdate,
-            source: "tomtom",
-          };
-
-          await redis.set(key, response);
-          await redis.del(lockKey);
-
-          return response;
-        };
-
-        if (cachedValue !== null) {
-          if (!env.TOMTOM_API_KEY) {
-            return Response.json({
-              ...cachedValue,
-              [APP_VERSION_HEADER]: APP_VERSION,
-            } satisfies WithAppVersion<Traffic.RouteResponse>);
-          }
-
-          const isStale = !cachedValue.nextUpdate || dayjs().isSameOrAfter(dayjs(cachedValue.nextUpdate));
-
-          if (isStale) {
-            const hasLock = Boolean(await redis.exists(lockKey));
-
-            if (hasLock) {
-              return Response.json({
-                ...cachedValue,
-                [APP_VERSION_HEADER]: APP_VERSION,
-              } satisfies WithAppVersion<Traffic.RouteResponse>);
-            }
-
-            await redis.set(lockKey, true, { ex: 60 });
-
-            waitUntil(updateCachedTraffic());
-          }
-
-          return Response.json({
-            ...cachedValue,
-            [APP_VERSION_HEADER]: APP_VERSION,
-          } satisfies WithAppVersion<Traffic.RouteResponse>);
-        }
-
-        const trafficResponse = await updateCachedTraffic();
-
-        return Response.json({
-          ...trafficResponse,
+          },
+          lastUpdated: queryTime.toISOString(),
+          nextUpdate: nextUpdate.toISOString(),
           [APP_VERSION_HEADER]: APP_VERSION,
         } satisfies WithAppVersion<Traffic.RouteResponse>);
       },
