@@ -17,7 +17,7 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "SR347.com",
+        title: "SR 347 Live Traffic & Cameras",
       },
       {
         name: "description",
