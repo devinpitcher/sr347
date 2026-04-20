@@ -35,7 +35,6 @@ export const Route = createFileRoute("/api/camera/$id")({
             {
               headers: {
                 "content-type": "image/svg+xml",
-                [APP_VERSION_HEADER]: APP_VERSION,
               },
             }
           );
@@ -70,7 +69,6 @@ export const Route = createFileRoute("/api/camera/$id")({
           return new Response(image.body, {
             headers: {
               "x-camera-name": camera.name,
-              [APP_VERSION_HEADER]: APP_VERSION,
               "content-type": image.contentType,
               "content-length": image.contentLength,
               "cache-control": "private, max-age=15",
@@ -117,9 +115,6 @@ export const Route = createFileRoute("/api/camera/$id")({
             {
               status: 503,
               statusText: "Camera offline",
-              headers: {
-                [APP_VERSION_HEADER]: APP_VERSION,
-              },
             }
           );
         }

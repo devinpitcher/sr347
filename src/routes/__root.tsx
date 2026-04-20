@@ -2,11 +2,9 @@
 import { PropsWithChildren, ReactNode } from "react";
 import { Outlet, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { SWRConfig } from "swr";
-import { AppContext, IAppContext } from "~/context";
 import { UMAMI_WEBSITE_ID } from "~/constants/umami";
 import { swrConfig } from "~/lib/swr";
 import stylesheet from "~/style.css?url";
-import { APP_VERSION } from "~/constants/app";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -33,7 +31,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <Providers appVersion={APP_VERSION}>
+    <Providers>
       <RootDocument>
         <Outlet />
       </RootDocument>
@@ -56,12 +54,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   );
 }
 
-interface ProvidersProps extends IAppContext {}
+interface ProvidersProps {}
 
-function Providers({ children, appVersion }: PropsWithChildren<ProvidersProps>) {
-  return (
-    <AppContext.Provider value={{ appVersion }}>
-      <SWRConfig value={swrConfig}>{children}</SWRConfig>
-    </AppContext.Provider>
-  );
+function Providers({ children }: PropsWithChildren<ProvidersProps>) {
+  return <SWRConfig value={swrConfig}>{children}</SWRConfig>;
 }

@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { env } from "cloudflare:workers";
-import { APP_VERSION, APP_VERSION_HEADER } from "~/constants/app";
 import { Redis } from "@upstash/redis/cloudflare";
 import dayjs from "dayjs";
 import { ROUTES } from "~/constants/routes";
@@ -51,8 +50,7 @@ export const Route = createFileRoute("/api/traffic/$route")({
             },
             lastUpdated: currentValue.queryTimestamp.toISOString(),
             nextUpdate: currentValue.nextUpdate.toISOString(),
-            [APP_VERSION_HEADER]: APP_VERSION,
-          } satisfies WithAppVersion<Traffic.RouteResponse>;
+          } satisfies Traffic.RouteResponse;
 
           if (!env.TOMTOM_API_KEY) {
             return Response.json(currentValueResponse);
@@ -106,8 +104,7 @@ export const Route = createFileRoute("/api/traffic/$route")({
           },
           lastUpdated: queryTime.toISOString(),
           nextUpdate: nextUpdate.toISOString(),
-          [APP_VERSION_HEADER]: APP_VERSION,
-        } satisfies WithAppVersion<Traffic.RouteResponse>);
+        } satisfies Traffic.RouteResponse);
       },
     },
   },

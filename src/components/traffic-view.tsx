@@ -1,19 +1,13 @@
 import { TrafficSign } from "~/components/traffic-sign";
 import { ROUTES } from "~/constants/routes";
 import useSWR from "swr";
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import { Traffic } from "~/types/traffic";
 import { ChevronDownIcon } from "@heroicons/react/16/solid";
 import { useLocalStorageState } from "ahooks";
-import { AppContext } from "~/context";
-import { useSWRFetcher } from "~/lib/swr";
-import { APP_VERSION_HEADER } from "~/constants/app";
 import { dayjs } from "~/lib/dayjs";
 
 export function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
-  const { appVersion } = useContext(AppContext);
-  const fetcher = useSWRFetcher();
-
   const [userRoute, setUserRoute] = useLocalStorageState("selected-route", {
     defaultValue: "347",
   });
@@ -26,12 +20,7 @@ export function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
     return ROUTES.find((route) => route.key === "347")!;
   }, [userRoute]);
 
-  const { data } = useSWR<WithAppVersion<Traffic.RouteResponse>>(`/api/traffic/${selectedRoute.key}`, {
-    fetcher: async (url: string) => {
-      const response = await fetcher(url);
-
-      return (await response.json()) as Traffic.RouteResponse;
-    },
+  const { data } = useSWR<Traffic.RouteResponse>(`/api/traffic/${selectedRoute.key}`, {
     refreshInterval: (data) => {
       if (!data) return 60_000;
 
@@ -43,11 +32,6 @@ export function TrafficView({ isAfternoon }: { isAfternoon: boolean }) {
       console.log(`refreshInterval: ${refreshInterval / 1_000}s`);
 
       return refreshInterval;
-    },
-    onSuccess: (data) => {
-      if (!!appVersion && !!data[APP_VERSION_HEADER] && data[APP_VERSION_HEADER] !== appVersion) {
-        window.location.reload();
-      }
     },
   });
 

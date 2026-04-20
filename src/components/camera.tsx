@@ -4,7 +4,7 @@ import I10Logo from "src/assets/i10.svg?react";
 import reactStringReplace from "react-string-replace";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import useSWR from "swr";
-import { SWRFetcherError, useSWRFetcher } from "~/lib/swr";
+import { swrFetcher, SWRFetcherError } from "~/lib/swr";
 
 interface CameraProps {
   id: string;
@@ -17,7 +17,6 @@ export function Camera({ id, name, note }: CameraProps) {
   const [hasLoaded, setHasLoaded] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
   const [lastSeen, setLastSeen] = useState<string>("");
-  const fetcher = useSWRFetcher();
 
   useSWR(`/api/camera/${id}`, {
     errorRetryCount: 5,
@@ -26,9 +25,8 @@ export function Camera({ id, name, note }: CameraProps) {
     refreshInterval: 15 * 1_000,
     shouldRetryOnError: true,
     fetcher: async (url: string) => {
-      const response = await fetcher(url);
-
-      return await response.blob();
+      const data = await swrFetcher(url);
+      return await data.blob();
     },
     onSuccess: async (blob: Blob) => {
       if (!imageRef.current || !blob) return;

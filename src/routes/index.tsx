@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Fragment, useContext, useEffect, useRef } from "react";
-import { AppContext } from "~/context";
+import { Fragment, useEffect, useRef } from "react";
 import { useTabVisibility } from "~/hooks/use-tab-visibility";
 import { getDate } from "~/lib/dayjs";
 import { CAMERAS } from "~/constants/cameras";
@@ -13,13 +12,13 @@ import { ClickTap } from "~/components/utils";
 import { Popover, Transition } from "@headlessui/react";
 import { HeartIcon } from "@heroicons/react/20/solid";
 import SR347Logo from "~/assets/sr347.svg?react";
+import { APP_VERSION } from "~/constants/app";
 
 export const Route = createFileRoute("/")({
   component: Home,
 });
 
 function Home() {
-  const { appVersion } = useContext(AppContext);
   const isAfternoon = getDate().hour() >= 12;
   const appVisible = useTabVisibility();
   const lastVisibleRef = useRef<number>(Date.now());
@@ -101,7 +100,7 @@ function Home() {
               </p>
 
               <p className="mt-2 text-center font-mono text-xs text-slate-300 dark:text-slate-800">
-                <strong>App version:</strong> {appVersion?.slice(-7)}
+                <strong>App version:</strong> {APP_VERSION.slice(-7)}
               </p>
             </div>
           </section>
