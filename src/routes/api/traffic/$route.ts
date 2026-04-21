@@ -26,12 +26,7 @@ export const Route = createFileRoute("/api/traffic/$route")({
 
         const lockKey = `route-${matchedRoute.key}-lock`;
 
-        const queryResult = await db
-          .select()
-          .from(trafficTable)
-          .where(eq(trafficTable.routeId, matchedRoute.key))
-          .orderBy(desc(trafficTable.queryTimestamp))
-          .limit(1);
+        const queryResult = await db.select().from(trafficTable).where(eq(trafficTable.routeId, matchedRoute.key)).orderBy(desc(trafficTable.id)).limit(1);
 
         const currentValue = queryResult.pop();
 
