@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { env } from "cloudflare:workers";
 import { Redis } from "@upstash/redis/cloudflare";
-import dayjs from "dayjs";
+import { dayjs } from "~/lib/dayjs";
 import { ROUTES } from "~/constants/routes";
 import { Traffic } from "~/types/traffic";
 import { TomTomService } from "~/services/tomtom";
