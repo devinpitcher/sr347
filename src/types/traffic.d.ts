@@ -30,5 +30,7 @@ export namespace Traffic {
   export type RouteTraffic = {
     duration: number;
     duration_in_traffic: number;
+    historical_duration_in_traffic: number;
+    traffic_delay: number;
   };
 }

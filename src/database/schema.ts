@@ -47,17 +47,23 @@ export const alertCronLogTable = sqliteTable("alert_cron_log", {
     .default(sql`(current_timestamp)`),
 });
 
-export const trafficTable = sqliteTable("traffic", {
-  id: integer({ mode: "number" }).primaryKey({ autoIncrement: true }),
-  routeId: text().notNull(),
-  inboundDuration: integer({ mode: "number" }).notNull(),
-  inboundDurationInTraffic: integer({ mode: "number" }).notNull(),
-  outboundDuration: integer({ mode: "number" }).notNull(),
-  outboundDurationInTraffic: integer({ mode: "number" }).notNull(),
-  dayOfWeek: integer({ mode: "number" }).notNull().default(0),
-  timeOfDay: integer({ mode: "number" }).notNull().default(0),
-  queryTimestamp: integer({ mode: "timestamp" }).notNull(),
-  nextUpdate: integer({ mode: "timestamp" }).notNull(),
-}, (t) => [
-  index("traffic_route_id_day_of_week_time_of_day_idx").on(t.routeId, t.dayOfWeek, t.timeOfDay),
-]);
+export const trafficTable = sqliteTable(
+  "traffic",
+  {
+    id: integer({ mode: "number" }).primaryKey({ autoIncrement: true }),
+    routeId: text().notNull(),
+    inboundDuration: integer({ mode: "number" }).notNull(),
+    inboundDurationInTraffic: integer({ mode: "number" }).notNull(),
+    inboundTrafficDelay: integer({ mode: "number" }).default(0),
+    inboundHistoricalDurationInTraffic: integer({ mode: "number" }).default(0),
+    outboundDuration: integer({ mode: "number" }).notNull(),
+    outboundDurationInTraffic: integer({ mode: "number" }).notNull(),
+    outboundTrafficDelay: integer({ mode: "number" }).default(0),
+    outboundHistoricalDurationInTraffic: integer({ mode: "number" }).default(0),
+    dayOfWeek: integer({ mode: "number" }).notNull().default(0),
+    timeOfDay: integer({ mode: "number" }).notNull().default(0),
+    queryTimestamp: integer({ mode: "timestamp" }).notNull(),
+    nextUpdate: integer({ mode: "timestamp" }).notNull(),
+  },
+  (t) => [index("traffic_route_id_day_of_week_time_of_day_idx").on(t.routeId, t.dayOfWeek, t.timeOfDay)]
+);

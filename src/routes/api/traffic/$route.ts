@@ -37,10 +37,14 @@ export const Route = createFileRoute("/api/traffic/$route")({
               inbound: {
                 duration: currentValue.inboundDuration,
                 duration_in_traffic: currentValue.inboundDurationInTraffic,
+                historical_duration_in_traffic: currentValue.inboundHistoricalDurationInTraffic || currentValue.inboundDurationInTraffic,
+                traffic_delay: currentValue.inboundTrafficDelay ?? 0,
               },
               outbound: {
                 duration: currentValue.outboundDuration,
                 duration_in_traffic: currentValue.outboundDurationInTraffic,
+                historical_duration_in_traffic: currentValue.outboundHistoricalDurationInTraffic || currentValue.outboundDurationInTraffic,
+                traffic_delay: currentValue.outboundTrafficDelay ?? 0,
               },
             },
             lastUpdated: currentValue.queryTimestamp.toISOString(),
@@ -70,21 +74,23 @@ export const Route = createFileRoute("/api/traffic/$route")({
         const inbound = await tomtom.getRoute({
           origin: matchedRoute.inbound.origin.join(","),
           destination: matchedRoute.inbound.destination.join(","),
-          routeDuration: matchedRoute.duration,
         });
 
         const outbound = await tomtom.getRoute({
           origin: matchedRoute.outbound.origin.join(","),
           destination: matchedRoute.outbound.destination.join(","),
-          routeDuration: matchedRoute.duration,
         });
 
         await db.insert(trafficTable).values({
           routeId: matchedRoute.key,
-          inboundDuration: inbound.duration,
-          inboundDurationInTraffic: inbound.duration_in_traffic,
-          outboundDuration: outbound.duration,
-          outboundDurationInTraffic: outbound.duration_in_traffic,
+          inboundDuration: inbound.freeflowTravelTime,
+          inboundDurationInTraffic: inbound.liveTravelTime,
+          inboundHistoricalDurationInTraffic: inbound.historicalTravelTime,
+          inboundTrafficDelay: inbound.trafficDelay,
+          outboundDuration: outbound.freeflowTravelTime,
+          outboundDurationInTraffic: outbound.liveTravelTime,
+          outboundHistoricalDurationInTraffic: outbound.historicalTravelTime,
+          outboundTrafficDelay: outbound.trafficDelay,
           dayOfWeek: queryTime.day(),
           timeOfDay: queryTime.diff(queryTime.startOf("day"), "seconds"),
           queryTimestamp: queryTime.toDate(),
@@ -96,8 +102,18 @@ export const Route = createFileRoute("/api/traffic/$route")({
         return Response.json({
           route: {
             key: matchedRoute.key,
-            inbound,
-            outbound,
+            inbound: {
+              duration: inbound.freeflowTravelTime,
+              duration_in_traffic: inbound.liveTravelTime,
+              historical_duration_in_traffic: inbound.historicalTravelTime,
+              traffic_delay: inbound.trafficDelay,
+            },
+            outbound: {
+              duration: outbound.freeflowTravelTime,
+              duration_in_traffic: outbound.liveTravelTime,
+              historical_duration_in_traffic: outbound.historicalTravelTime,
+              traffic_delay: outbound.trafficDelay,
+            },
           },
           lastUpdated: queryTime.toISOString(),
           nextUpdate: nextUpdate.toISOString(),
