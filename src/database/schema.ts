@@ -1,4 +1,4 @@
-import { sqliteTable, integer, text, real, index } from "drizzle-orm/sqlite-core";
+import { sqliteTable, integer, text, real, index, numeric } from "drizzle-orm/sqlite-core";
 import { AZ511 } from "~/types/az511";
 import { InferInsertModel, InferSelectModel, sql } from "drizzle-orm";
 
@@ -67,3 +67,11 @@ export const trafficTable = sqliteTable(
   },
   (t) => [index("traffic_route_id_day_of_week_time_of_day_idx").on(t.routeId, t.dayOfWeek, t.timeOfDay)]
 );
+
+export const d1Migrations = sqliteTable("d1_migrations", {
+  id: integer().primaryKey({ autoIncrement: true }),
+  name: text(),
+  appliedAt: numeric("applied_at")
+    .default(sql`(CURRENT_TIMESTAMP)`)
+    .notNull(),
+});
