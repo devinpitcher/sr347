@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "deploy": "npm run build && wrangler deploy",
     "cf-typegen": "wrangler types",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "db:pull-remote": "wrangler d1 export sr347 --remote --output=./remote.sql && rm -rf .wrangler/state/v3/d1/* && wrangler d1 execute sr347 --local --file=./remote.sql && rm ./remote.sql"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",

@@ -85,6 +85,8 @@ export const Route = createFileRoute("/api/traffic/$route")({
           inboundDurationInTraffic: inbound.duration_in_traffic,
           outboundDuration: outbound.duration,
           outboundDurationInTraffic: outbound.duration_in_traffic,
+          dayOfWeek: queryTime.day(),
+          timeOfDay: queryTime.diff(queryTime.startOf("day"), "seconds"),
           queryTimestamp: queryTime.toDate(),
           nextUpdate: nextUpdate.toDate(),
         });

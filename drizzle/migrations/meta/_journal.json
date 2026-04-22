@@ -22,6 +22,13 @@
       "when": 1776632999530,
       "tag": "0002_add_traffic_table",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1776865916452,
+      "tag": "0003_add_time_of_day_columns_to_traffic",
+      "breakpoints": true
     }
   ]
 }
