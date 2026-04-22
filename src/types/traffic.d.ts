@@ -19,6 +19,7 @@ export namespace Traffic {
     route: Route;
     lastUpdated: string;
     nextUpdate: string;
+    cached: boolean;
   };
 
   export type Route = {
@@ -29,6 +30,8 @@ export namespace Traffic {
 
   export type RouteTraffic = {
     duration: number;
+    typical_duration: number;
     duration_in_traffic: number;
+    typical_duration_in_traffic: number;
   };
 }

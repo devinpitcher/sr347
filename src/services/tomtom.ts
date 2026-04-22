@@ -1,5 +1,4 @@
 import { TomTom } from "~/types/tomtom";
-import { Traffic } from "~/types/traffic";
 
 export class TomTomService {
   private readonly apiKey: string;
@@ -8,15 +7,7 @@ export class TomTomService {
     this.apiKey = apiKey;
   }
 
-  public async getRoute({
-    origin,
-    destination,
-    routeDuration,
-  }: {
-    origin: string;
-    destination: string;
-    routeDuration?: number;
-  }): Promise<Traffic.RouteTraffic> {
+  public async getRoute({ origin, destination }: { origin: string; destination: string }) {
     const requestUrl = new URL(`https://api.tomtom.com/routing/1/calculateRoute/${origin}:${destination}/json`);
 
     requestUrl.searchParams.set("key", this.apiKey);
@@ -24,12 +15,20 @@ export class TomTomService {
     requestUrl.searchParams.set("traffic", "true");
     requestUrl.searchParams.set("computeTravelTimeFor", "all");
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+      controller.abort();
+    }, 5_000);
+
     const response = await fetch(requestUrl, {
       method: "GET",
       headers: {
         "Accept-Encoding": "gzip, deflate", // TomTom does not accept brotli (br)
       },
+      signal: controller.signal,
     });
+
+    clearTimeout(timeout);
 
     if (!response.ok) {
       const text = await response.text();
@@ -45,7 +44,7 @@ export class TomTomService {
 
     const [route] = data.routes;
 
-    const duration = routeDuration ?? route.summary.noTrafficTravelTimeInSeconds;
+    const duration = route.summary.noTrafficTravelTimeInSeconds;
     const duration_in_traffic = route.summary.liveTrafficIncidentsTravelTimeInSeconds ?? route.summary.noTrafficTravelTimeInSeconds;
 
     return {
